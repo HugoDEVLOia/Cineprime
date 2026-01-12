@@ -18,9 +18,9 @@ function DirectLinksPanel({ media }: { media: Media }) {
     const animeSamaUrl = `https://anime-sama.si/catalogue/${media.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')}/`;
 
     return (
-        <div className="absolute inset-y-0 left-full w-screen h-full bg-black/80 backdrop-blur-md p-6 flex flex-col justify-center items-center text-white">
-            <h3 className="text-2xl font-bold mb-6 flex items-center gap-2"><Link2 /> Liens Directs</h3>
-            <div className="flex flex-col gap-4 w-full max-w-xs text-sm">
+        <div className="w-full h-full bg-card p-6 flex flex-col justify-center items-center text-card-foreground">
+            <h3 className="text-xl font-bold mb-6 flex items-center gap-2"><Link2 /> Liens Directs</h3>
+            <div className="flex flex-col gap-3 w-full max-w-xs text-sm">
                 <Button asChild size="lg" className="w-full" style={{ backgroundColor: '#1E1E1E' }}>
                     <a href={`https://cinepulse.lol/sheet/movie-${media.id}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 text-[#FF4545]">
                         <Image src="https://cinepulse.lol/favicons/favicon.svg" alt="Cinepulse Logo" width={20} height={20}/>
@@ -28,7 +28,7 @@ function DirectLinksPanel({ media }: { media: Media }) {
                     </a>
                 </Button>
                 
-                <div className="flex flex-col gap-3 pt-4 border-t border-border/20">
+                <div className="flex flex-col gap-2 pt-3 border-t border-border">
                     <Button asChild style={{ backgroundColor: '#E50914', color: '#F5F5F1' }} className="hover:bg-red-800">
                         <a href={`https://movix.blog/search?q=${encodeURIComponent(media.title)}`} target="_blank" rel="noopener noreferrer" className="flex items-center">
                             <Image src="https://movix.blog/assets/movix-CzqwVOTS.png" alt="Movix Logo" width={16} height={16} className="mr-2 rounded-sm"/>
@@ -70,7 +70,6 @@ function DiscoveryItem({ media, isActive }: { media: Media, isActive: boolean })
   const router = useRouter();
   const [showHeart, setShowHeart] = useState(false);
   const [isFlipped, setIsFlipped] = useState(false);
-  const [isPanelOpen, setIsPanelOpen] = useState<'links' | null>(null);
 
   const controls = useAnimation();
 
@@ -108,23 +107,10 @@ function DiscoveryItem({ media, isActive }: { media: Media, isActive: boolean })
     const { offset, velocity } = info;
     const swipeThreshold = 100;
 
-    if (offset.x > swipeThreshold || velocity.x > 300) { // Swipe right for links
-      controls.start({ x: '85vw' });
-      setIsPanelOpen('links');
-    } else if (offset.x < -swipeThreshold || velocity.x < -300) { // Swipe left for details
+    if (offset.x < -swipeThreshold || velocity.x < -300) { // Swipe left for details
       router.push(`/media/movie/${media.id}?from=discover`);
     } else { // Snap back to center
       controls.start({ x: 0 });
-      setIsPanelOpen(null);
-    }
-  };
-
-  const handlePanelDragEnd = (event: MouseEvent | TouchEvent | PointerEvent, info: any) => {
-     if (isPanelOpen === 'links' && (info.offset.x < -100 || info.velocity.x < -300)) {
-        controls.start({ x: 0 });
-        setIsPanelOpen(null);
-    } else {
-        controls.start({ x: '85vw' });
     }
   };
 
@@ -139,17 +125,12 @@ function DiscoveryItem({ media, isActive }: { media: Media, isActive: boolean })
          <div className="absolute inset-0 bg-black/60"></div>
       </div>
        <div className="relative h-full flex flex-col items-center justify-center p-4">
-            
-            <div className="absolute inset-y-0 -left-full w-screen h-full">
-                <DirectLinksPanel media={media} />
-            </div>
-
             <motion.div 
                 className="relative w-full h-full flex flex-col items-center justify-center"
                 drag="x"
                 dragConstraints={{ left: 0, right: 0 }}
-                dragElastic={{ left: 0.2, right: 0.8 }}
-                onDragEnd={isPanelOpen ? handlePanelDragEnd : handleDragEnd}
+                dragElastic={{ left: 0.8, right: 0.2 }}
+                onDragEnd={handleDragEnd}
                 animate={controls}
                 transition={{ type: 'tween', ease: 'easeOut', duration: 0.4 }}
             >
@@ -173,20 +154,17 @@ function DiscoveryItem({ media, isActive }: { media: Media, isActive: boolean })
                 >
                 <motion.div 
                     className="absolute w-full h-full backface-hidden cursor-pointer"
-                    onClick={() => setIsFlipped(true)}
+                    onClick={() => setIsFlipped(f => !f)}
                 >
                     <Image src={media.posterUrl} alt={`Affiche de ${media.title}`} fill className="object-contain rounded-2xl shadow-2xl" />
                 </motion.div>
 
                 <motion.div
-                    className="absolute w-full h-full backface-hidden p-6 bg-card rounded-2xl flex flex-col justify-center items-center text-card-foreground cursor-pointer"
+                    className="absolute w-full h-full backface-hidden rounded-2xl overflow-hidden cursor-pointer"
                     style={{ transform: 'rotateY(180deg)' }}
-                    onClick={() => setIsFlipped(false)}
+                    onClick={() => setIsFlipped(f => !f)}
                 >
-                    <h3 className="text-xl font-bold mb-4">Synopsis</h3>
-                    <p className="text-sm text-center text-muted-foreground overflow-y-auto scrollbar-thin">
-                        {media.description}
-                    </p>
+                    <DirectLinksPanel media={media} />
                 </motion.div>
                 </motion.div>
             </motion.div>
