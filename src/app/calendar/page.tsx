@@ -12,7 +12,7 @@ import { CalendarDays, Info, Loader2 } from 'lucide-react';
 
 export default function CalendarPage() {
   const [movies, setMovies] = useState<Media[]>([]);
-  const [page, setPage] = useState(0); // Represents the month offset from current
+  const [page, setPage] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [hasMore, setHasMore] = useState(true);
   
@@ -25,7 +25,6 @@ export default function CalendarPage() {
   }, [hasMore]);
 
   useEffect(() => {
-    // Initial load is triggered by the observer setup effect.
     if (page === 0) {
       if (movies.length === 0) setIsLoading(true);
       return;
@@ -46,9 +45,7 @@ export default function CalendarPage() {
            return [...prev, ...uniqueNewMovies];
         });
       } else {
-        // If we get no movies for a future month, we might stop fetching.
-        // Let's assume for now that if an entire month is empty, there's nothing more for a while.
-        if (page > 1) {
+        if (page > 2) { // Allow fetching a bit more even if a month is empty
             setHasMore(false);
         }
       }
@@ -69,7 +66,7 @@ export default function CalendarPage() {
           loadMoreMovies();
         }
       },
-      { threshold: 0.5 }
+      { rootMargin: "400px" } // Load a bit earlier
     );
 
     const currentLoader = loaderRef.current;
@@ -77,8 +74,8 @@ export default function CalendarPage() {
       observer.observe(currentLoader);
     }
     
-    // Initial load if loader is already visible
-    if(currentLoader && !isFetching.current && movies.length === 0) {
+    // Initial load
+    if(!isFetching.current && movies.length === 0) {
         loadMoreMovies();
     }
 
@@ -103,7 +100,6 @@ export default function CalendarPage() {
       return acc;
     }, {} as Record<string, Media[]>);
 
-    // Sort by date chronologically
     return Object.keys(grouped).sort((a, b) => new Date(a).getTime() - new Date(b).getTime()).reduce(
       (obj, key) => { 
         obj[key] = grouped[key]; 
@@ -114,6 +110,20 @@ export default function CalendarPage() {
     
   }, [movies]);
 
+  const skeletonView = (
+    <div className="space-y-12">
+        {Array.from({length: 3}).map((_, i) => (
+            <div key={i} className="relative pl-10">
+                <div className="absolute left-4 top-2 h-4 w-4 bg-primary rounded-full -translate-x-1/2 -translate-y-1/2 border-4 border-background"></div>
+                <Skeleton className="h-8 w-56 mb-4 rounded-lg" />
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
+                    {Array.from({length: 5}).map((_, j) => <MediaCardSkeleton key={j} />)}
+                </div>
+            </div>
+        ))}
+    </div>
+  );
+
   return (
     <div className="space-y-8">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
@@ -123,50 +133,44 @@ export default function CalendarPage() {
         </h1>
       </div>
       
-      {movies.length === 0 && isLoading ? (
-        <div className="space-y-8">
-            {Array.from({length: 3}).map((_, i) => (
-                <div key={i}>
-                    <Skeleton className="h-8 w-56 mb-4 rounded-lg" />
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
-                        {Array.from({length: 5}).map((_, j) => <MediaCardSkeleton key={j} />)}
-                    </div>
+      <div className="relative pl-4">
+        {movies.length > 0 && <div className="absolute left-4 top-2 bottom-0 w-0.5 bg-border -translate-x-1/2"></div>}
+      
+        {movies.length === 0 && isLoading ? skeletonView : 
+        Object.keys(moviesByDate).length > 0 ? (
+          <div className="space-y-12">
+            {Object.entries(moviesByDate).map(([date, moviesOnDate]) => (
+              <div key={date} className="relative pl-6">
+                <div className="absolute left-0 top-2 h-4 w-4 bg-primary rounded-full -translate-x-1/2 -translate-y-1/2 border-4 border-background"></div>
+                <h3 className="text-xl font-bold text-foreground mb-4 capitalize">
+                  {format(parseISO(date), 'eeee d MMMM yyyy', { locale: fr })}
+                </h3>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
+                  {moviesOnDate.map(movie => (
+                    <MediaCard key={movie.id} media={movie} />
+                  ))}
                 </div>
-            ))}
-        </div>
-      ) : Object.keys(moviesByDate).length > 0 ? (
-        <div className="space-y-10">
-          {Object.entries(moviesByDate).map(([date, moviesOnDate]) => (
-            <div key={date}>
-              <h3 className="text-xl font-bold text-foreground mb-4 pb-2 border-b border-border/60 capitalize flex items-center gap-2.5">
-                <CalendarDays className="h-5 w-5 text-primary" />
-                {format(parseISO(date), 'eeee d MMMM yyyy', { locale: fr })}
-              </h3>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
-                {moviesOnDate.map(movie => (
-                  <MediaCard key={movie.id} media={movie} />
-                ))}
               </div>
+            ))}
+            <div ref={loaderRef} className="flex justify-center items-center py-8 h-16">
+                  {isLoading && movies.length > 0 && <Loader2 className="h-8 w-8 animate-spin text-primary" />}
+                  {!hasMore && movies.length > 0 && <p className="text-muted-foreground">Vous avez atteint la fin.</p>}
             </div>
-          ))}
-          <div ref={loaderRef} className="flex justify-center items-center py-8 h-16">
-                {isLoading && movies.length > 0 && <Loader2 className="h-8 w-8 animate-spin text-primary" />}
-                {!hasMore && movies.length > 0 && <p className="text-muted-foreground">Vous avez atteint la fin.</p>}
-           </div>
-        </div>
-      ) : (
-         <Card className="shadow-lg rounded-xl p-10 bg-card/80 mt-8">
-            <div className="flex flex-col items-center text-center text-muted-foreground">
-                <Info className="w-16 h-16 mb-5" />
-                <h4 className="text-xl font-semibold text-foreground mb-2">
-                Aucune sortie à afficher
-                </h4>
-                <p className="text-md">
-                 Il semble qu'il n'y ait pas de sorties à venir pour le moment.
-                </p>
-            </div>
-         </Card>
-      )}
+          </div>
+        ) : !isLoading && movies.length === 0 ? (
+          <Card className="shadow-lg rounded-xl p-10 bg-card/80 mt-8">
+              <div className="flex flex-col items-center text-center text-muted-foreground">
+                  <Info className="w-16 h-16 mb-5" />
+                  <h4 className="text-xl font-semibold text-foreground mb-2">
+                  Aucune sortie à afficher
+                  </h4>
+                  <p className="text-md">
+                   Il semble qu'il n'y ait pas de sorties à venir pour le moment.
+                  </p>
+              </div>
+          </Card>
+        ) : null}
+      </div>
     </div>
   )
 }
