@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { addMonths, format, parseISO } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { getUpcomingMovies, type Media } from '@/services/tmdb';
@@ -62,17 +62,13 @@ export default function CalendarPage() {
     return sortedGrouped;
   }, [movies]);
 
-  const handleMonthChange = (newMonth: Date) => {
-    setCurrentMonth(newMonth);
-  }
-
-  const goToPreviousMonth = () => {
-    handleMonthChange(addMonths(currentMonth, -1));
-  };
+  const goToPreviousMonth = useCallback(() => {
+    setCurrentMonth(prev => addMonths(prev, -1));
+  }, []);
   
-  const goToNextMonth = () => {
-    handleMonthChange(addMonths(currentMonth, 1));
-  };
+  const goToNextMonth = useCallback(() => {
+    setCurrentMonth(prev => addMonths(prev, 1));
+  }, []);
 
   return (
     <div className="space-y-8">
