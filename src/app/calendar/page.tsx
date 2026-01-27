@@ -13,20 +13,27 @@ import { CalendarDays, Info, Loader2 } from 'lucide-react';
 export default function CalendarPage() {
   const [movies, setMovies] = useState<Media[]>([]);
   const [page, setPage] = useState(0); // Represents the month offset from current
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [hasMore, setHasMore] = useState(true);
   
   const loaderRef = useRef(null);
+  const isFetching = useRef(false);
 
   const loadMoreMovies = useCallback(() => {
-    if (isLoading || !hasMore) return;
+    if (isFetching.current || !hasMore) return;
     setPage(p => p + 1);
-  }, [isLoading, hasMore]);
+  }, [hasMore]);
 
   useEffect(() => {
-    if (page === 0) return; // Don't fetch on initial render, wait for observer
+    // Initial load is triggered by the observer setup effect.
+    if (page === 0) {
+      if (movies.length === 0) setIsLoading(true);
+      return;
+    };
 
+    isFetching.current = true;
     setIsLoading(true);
+
     const dateToFetch = addMonths(new Date(), page - 1);
     const startDate = format(startOfMonth(dateToFetch), 'yyyy-MM-dd');
     const endDate = format(endOfMonth(dateToFetch), 'yyyy-MM-dd');
@@ -39,32 +46,40 @@ export default function CalendarPage() {
            return [...prev, ...uniqueNewMovies];
         });
       } else {
-        // If we fetched for a future month (page > 1) and got nothing, assume no more future releases.
+        // If we get no movies for a future month, we might stop fetching.
+        // Let's assume for now that if an entire month is empty, there's nothing more for a while.
         if (page > 1) {
             setHasMore(false);
         }
       }
       setIsLoading(false);
+      isFetching.current = false;
     }).catch(err => {
       console.error("Failed to fetch movies for calendar:", err);
       setIsLoading(false);
+      isFetching.current = false;
     });
 
-  }, [page]);
+  }, [page, movies.length]);
   
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting) {
+        if (entries[0].isIntersecting && !isFetching.current) {
           loadMoreMovies();
         }
       },
-      { threshold: 1.0 }
+      { threshold: 0.5 }
     );
 
     const currentLoader = loaderRef.current;
     if (currentLoader) {
       observer.observe(currentLoader);
+    }
+    
+    // Initial load if loader is already visible
+    if(currentLoader && !isFetching.current && movies.length === 0) {
+        loadMoreMovies();
     }
 
     return () => {
@@ -72,7 +87,7 @@ export default function CalendarPage() {
         observer.unobserve(currentLoader);
       }
     };
-  }, [loadMoreMovies]);
+  }, [loadMoreMovies, movies.length]);
 
   const moviesByDate = useMemo(() => {
     if (movies.length === 0) return {};
@@ -88,7 +103,8 @@ export default function CalendarPage() {
       return acc;
     }, {} as Record<string, Media[]>);
 
-    const sortedGrouped = Object.keys(grouped).sort().reduce(
+    // Sort by date chronologically
+    return Object.keys(grouped).sort((a, b) => new Date(a).getTime() - new Date(b).getTime()).reduce(
       (obj, key) => { 
         obj[key] = grouped[key]; 
         return obj;
@@ -96,7 +112,6 @@ export default function CalendarPage() {
       {} as Record<string, Media[]>
     );
     
-    return sortedGrouped;
   }, [movies]);
 
   return (
@@ -134,8 +149,8 @@ export default function CalendarPage() {
               </div>
             </div>
           ))}
-          <div ref={loaderRef} className="flex justify-center items-center py-8">
-                {isLoading && <Loader2 className="h-8 w-8 animate-spin text-primary" />}
+          <div ref={loaderRef} className="flex justify-center items-center py-8 h-16">
+                {isLoading && movies.length > 0 && <Loader2 className="h-8 w-8 animate-spin text-primary" />}
                 {!hasMore && movies.length > 0 && <p className="text-muted-foreground">Vous avez atteint la fin.</p>}
            </div>
         </div>
