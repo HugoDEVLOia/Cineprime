@@ -6,7 +6,7 @@ import { GeistMono } from 'geist/font/mono';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import Link from 'next/link';
-import { Film, Clapperboard, Search, Tv, BarChart3, Menu, SettingsIcon, X, Gamepad2, Compass, User as UserIcon } from 'lucide-react';
+import { Film, Clapperboard, Search, Tv, BarChart3, Menu, SettingsIcon, X, Gamepad2, Compass, User as UserIcon, CalendarDays } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import SearchBar from '@/components/search-bar';
 import Chatbot from '@/components/chatbot';
@@ -93,6 +93,11 @@ function AppLayout({ children }: { children: React.ReactNode }) {
                         <BarChart3 className="h-4 w-4" /> Statistiques
                     </Button>
                   </Link>
+                  <Link href="/calendar" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+                    <Button variant="ghost" className="gap-2 px-4 py-2">
+                        <CalendarDays className="h-4 w-4" /> Calendrier
+                    </Button>
+                  </Link>
                   <Link href="/games" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
                     <Button variant="ghost" className="gap-2 px-4 py-2">
                         <Gamepad2 className="h-4 w-4" /> Jeux
@@ -161,6 +166,13 @@ function AppLayout({ children }: { children: React.ReactNode }) {
                           <Link href="/stats">
                             <Button variant="ghost" className="w-full justify-start gap-3 px-3 py-2.5 text-base">
                               <BarChart3 className="h-5 w-5 text-muted-foreground" /> Statistiques
+                            </Button>
+                          </Link>
+                        </SheetClose>
+                         <SheetClose asChild>
+                          <Link href="/calendar">
+                            <Button variant="ghost" className="w-full justify-start gap-3 px-3 py-2.5 text-base">
+                              <CalendarDays className="h-5 w-5 text-muted-foreground" /> Calendrier
                             </Button>
                           </Link>
                         </SheetClose>

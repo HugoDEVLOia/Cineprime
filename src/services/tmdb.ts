@@ -567,6 +567,35 @@ export async function getMediaRecommendations(mediaId: string, mediaType: 'movie
   }
 }
 
+export async function getUpcomingMovies(startDate: string, endDate:string): Promise<Media[]> {
+  try {
+    const params = new URLSearchParams({
+      api_key: API_KEY,
+      language: LANGUAGE,
+      sort_by: 'popularity.desc',
+      'primary_release_date.gte': startDate,
+      'primary_release_date.lte': endDate,
+      'with_release_type': '2|3', // Theatrical (limited) or Theatrical
+      'vote_count.gte': '10'
+    });
+
+    const response = await fetch(`${BASE_URL}/discover/movie?${params.toString()}`);
+
+    if (!response.ok) {
+        console.error('Failed to fetch upcoming movies:', response.status, await response.text());
+        return [];
+    }
+    
+    const data = await response.json();
+    return data.results
+        .filter((item: any) => item.poster_path)
+        .map((item: any) => mapApiMediaToMedia(item, 'movie'));
+  } catch (error) {
+    console.error('Error fetching upcoming movies:', error);
+    return [];
+  }
+}
+
 const mapApiCreditToPersonCreditMedia = (credit: any): PersonCreditMedia => {
     const mediaType = credit.media_type === 'movie' ? 'movie' : 'tv';
     return {
