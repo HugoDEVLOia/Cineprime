@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
@@ -9,6 +10,7 @@ import { Card } from '@/components/ui/card';
 import MediaCard, { MediaCardSkeleton } from '@/components/media-card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { CalendarDays, Info, Loader2 } from 'lucide-react';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 
 export default function CalendarPage() {
   const [movies, setMovies] = useState<Media[]>([]);
@@ -66,7 +68,7 @@ export default function CalendarPage() {
           loadMoreMovies();
         }
       },
-      { rootMargin: "400px" } // Load a bit earlier
+      { rootMargin: "600px" } // Load a bit earlier horizontally
     );
 
     const currentLoader = loaderRef.current;
@@ -111,13 +113,16 @@ export default function CalendarPage() {
   }, [movies]);
 
   const skeletonView = (
-    <div className="space-y-12">
-        {Array.from({length: 3}).map((_, i) => (
-            <div key={i} className="relative pl-10">
-                <div className="absolute left-4 top-2 h-4 w-4 bg-primary rounded-full -translate-x-1/2 -translate-y-1/2 border-4 border-background"></div>
-                <Skeleton className="h-8 w-56 mb-4 rounded-lg" />
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
-                    {Array.from({length: 5}).map((_, j) => <MediaCardSkeleton key={j} />)}
+     <div className="flex space-x-12 p-4">
+        {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="relative flex-shrink-0 pt-16">
+                <Skeleton className="absolute top-0 left-0 h-8 w-56 rounded-lg" />
+                <div className="flex space-x-4">
+                    {Array.from({ length: 2 }).map((_, j) => (
+                        <div key={j} className="w-[180px] sm:w-[200px]">
+                            <MediaCardSkeleton />
+                        </div>
+                    ))}
                 </div>
             </div>
         ))}
@@ -133,30 +138,36 @@ export default function CalendarPage() {
         </h1>
       </div>
       
-      <div className="relative pl-4">
-        {movies.length > 0 && <div className="absolute left-4 top-2 bottom-0 w-0.5 bg-border -translate-x-1/2"></div>}
-      
-        {movies.length === 0 && isLoading ? skeletonView : 
+      <div className="relative pt-12">
+        {movies.length === 0 && isLoading ? skeletonView :
         Object.keys(moviesByDate).length > 0 ? (
-          <div className="space-y-12">
-            {Object.entries(moviesByDate).map(([date, moviesOnDate]) => (
-              <div key={date} className="relative pl-6">
-                <div className="absolute left-0 top-2 h-4 w-4 bg-primary rounded-full -translate-x-1/2 -translate-y-1/2 border-4 border-background"></div>
-                <h3 className="text-xl font-bold text-foreground mb-4 capitalize">
-                  {format(parseISO(date), 'eeee d MMMM yyyy', { locale: fr })}
-                </h3>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
-                  {moviesOnDate.map(movie => (
-                    <MediaCard key={movie.id} media={movie} />
-                  ))}
+          <>
+            {movies.length > 0 && <div className="absolute left-0 top-14 h-0.5 bg-border w-full z-0"></div>}
+            <ScrollArea className="w-full">
+              <div className="flex space-x-12 pb-4">
+                {Object.entries(moviesByDate).map(([date, moviesOnDate]) => (
+                  <div key={date} className="relative pt-16 flex-shrink-0">
+                     <h3 className="absolute top-0 left-0 text-lg font-bold text-foreground mb-4 -mt-1 capitalize whitespace-nowrap">
+                       {format(parseISO(date), 'eeee d MMMM yyyy', { locale: fr })}
+                     </h3>
+                     <div className="absolute left-0 top-14 h-4 w-4 bg-primary rounded-full -translate-y-1/2 border-4 border-background z-10"></div>
+                     <div className="flex space-x-4">
+                       {moviesOnDate.map(movie => (
+                         <div key={movie.id} className="w-[180px] sm:w-[200px]">
+                           <MediaCard media={movie} />
+                         </div>
+                       ))}
+                     </div>
+                  </div>
+                ))}
+                <div ref={loaderRef} className="flex flex-col items-center justify-center w-48 h-full self-stretch pt-16">
+                    {isLoading && movies.length > 0 && <Loader2 className="h-8 w-8 animate-spin text-primary" />}
+                    {!hasMore && movies.length > 0 && <p className="text-muted-foreground">Fin.</p>}
                 </div>
               </div>
-            ))}
-            <div ref={loaderRef} className="flex justify-center items-center py-8 h-16">
-                  {isLoading && movies.length > 0 && <Loader2 className="h-8 w-8 animate-spin text-primary" />}
-                  {!hasMore && movies.length > 0 && <p className="text-muted-foreground">Vous avez atteint la fin.</p>}
-            </div>
-          </div>
+              <ScrollBar orientation="horizontal" />
+            </ScrollArea>
+          </>
         ) : !isLoading && movies.length === 0 ? (
           <Card className="shadow-lg rounded-xl p-10 bg-card/80 mt-8">
               <div className="flex flex-col items-center text-center text-muted-foreground">
