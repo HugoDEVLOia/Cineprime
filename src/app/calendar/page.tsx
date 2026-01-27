@@ -1,41 +1,79 @@
-
 'use client';
 
-import { useState, useEffect, useMemo, useCallback } from 'react';
-import { addMonths, format, parseISO } from 'date-fns';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { addMonths, format, parseISO, startOfMonth, endOfMonth } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { getUpcomingMovies, type Media } from '@/services/tmdb';
 
-import { Card, CardHeader, CardContent } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import MediaCard, { MediaCardSkeleton } from '@/components/media-card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Button } from '@/components/ui/button';
-import { CalendarDays, ChevronLeft, ChevronRight, Info } from 'lucide-react';
+import { CalendarDays, Info, Loader2 } from 'lucide-react';
 
 export default function CalendarPage() {
-  const [currentMonth, setCurrentMonth] = useState(new Date());
   const [movies, setMovies] = useState<Media[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [page, setPage] = useState(0); // Represents the month offset from current
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  
+  const loaderRef = useRef(null);
+
+  const loadMoreMovies = useCallback(() => {
+    if (isLoading || !hasMore) return;
+    setPage(p => p + 1);
+  }, [isLoading, hasMore]);
 
   useEffect(() => {
-    const fetchMoviesForMonth = async () => {
-      setIsLoading(true);
-      const startDate = format(new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1), 'yyyy-MM-dd');
-      const endDate = format(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0), 'yyyy-MM-dd');
-      
-      try {
-        const upcomingMovies = await getUpcomingMovies(startDate, endDate);
-        setMovies(upcomingMovies);
-      } catch (error) {
-        console.error("Failed to fetch movies for calendar:", error);
-      } finally {
-        setIsLoading(false);
+    if (page === 0) return; // Don't fetch on initial render, wait for observer
+
+    setIsLoading(true);
+    const dateToFetch = addMonths(new Date(), page - 1);
+    const startDate = format(startOfMonth(dateToFetch), 'yyyy-MM-dd');
+    const endDate = format(endOfMonth(dateToFetch), 'yyyy-MM-dd');
+
+    getUpcomingMovies(startDate, endDate).then(newMovies => {
+      if (newMovies.length > 0) {
+        setMovies(prev => {
+           const existingIds = new Set(prev.map(m => m.id));
+           const uniqueNewMovies = newMovies.filter(m => !existingIds.has(m.id));
+           return [...prev, ...uniqueNewMovies];
+        });
+      } else {
+        // If we fetched for a future month (page > 1) and got nothing, assume no more future releases.
+        if (page > 1) {
+            setHasMore(false);
+        }
+      }
+      setIsLoading(false);
+    }).catch(err => {
+      console.error("Failed to fetch movies for calendar:", err);
+      setIsLoading(false);
+    });
+
+  }, [page]);
+  
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          loadMoreMovies();
+        }
+      },
+      { threshold: 1.0 }
+    );
+
+    const currentLoader = loaderRef.current;
+    if (currentLoader) {
+      observer.observe(currentLoader);
+    }
+
+    return () => {
+      if (currentLoader) {
+        observer.unobserve(currentLoader);
       }
     };
-    
-    fetchMoviesForMonth();
-  }, [currentMonth]);
-  
+  }, [loadMoreMovies]);
+
   const moviesByDate = useMemo(() => {
     if (movies.length === 0) return {};
     
@@ -50,7 +88,6 @@ export default function CalendarPage() {
       return acc;
     }, {} as Record<string, Media[]>);
 
-    // Create a new object with sorted keys
     const sortedGrouped = Object.keys(grouped).sort().reduce(
       (obj, key) => { 
         obj[key] = grouped[key]; 
@@ -62,14 +99,6 @@ export default function CalendarPage() {
     return sortedGrouped;
   }, [movies]);
 
-  const goToPreviousMonth = useCallback(() => {
-    setCurrentMonth(prev => addMonths(prev, -1));
-  }, []);
-  
-  const goToNextMonth = useCallback(() => {
-    setCurrentMonth(prev => addMonths(prev, 1));
-  }, []);
-
   return (
     <div className="space-y-8">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
@@ -79,31 +108,13 @@ export default function CalendarPage() {
         </h1>
       </div>
       
-      <Card className="shadow-lg rounded-xl overflow-hidden bg-card/80 backdrop-blur-sm">
-        <CardHeader className="p-4 sm:p-6">
-           <div className="flex items-center justify-between">
-               <h2 className="text-xl font-semibold capitalize text-foreground">
-                {format(currentMonth, 'MMMM yyyy', { locale: fr })}
-               </h2>
-                <div className="flex items-center gap-2">
-                    <Button variant="outline" size="icon" onClick={goToPreviousMonth} aria-label="Mois précédent">
-                        <ChevronLeft className="h-4 w-4" />
-                    </Button>
-                    <Button variant="outline" size="icon" onClick={goToNextMonth} aria-label="Mois suivant">
-                        <ChevronRight className="h-4 w-4" />
-                    </Button>
-                </div>
-            </div>
-        </CardHeader>
-      </Card>
-      
-      {isLoading ? (
+      {movies.length === 0 && isLoading ? (
         <div className="space-y-8">
             {Array.from({length: 3}).map((_, i) => (
                 <div key={i}>
                     <Skeleton className="h-8 w-56 mb-4 rounded-lg" />
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
-                        {Array.from({length: 3}).map((_, j) => <MediaCardSkeleton key={j} />)}
+                        {Array.from({length: 5}).map((_, j) => <MediaCardSkeleton key={j} />)}
                     </div>
                 </div>
             ))}
@@ -123,16 +134,20 @@ export default function CalendarPage() {
               </div>
             </div>
           ))}
+          <div ref={loaderRef} className="flex justify-center items-center py-8">
+                {isLoading && <Loader2 className="h-8 w-8 animate-spin text-primary" />}
+                {!hasMore && movies.length > 0 && <p className="text-muted-foreground">Vous avez atteint la fin.</p>}
+           </div>
         </div>
       ) : (
          <Card className="shadow-lg rounded-xl p-10 bg-card/80 mt-8">
             <div className="flex flex-col items-center text-center text-muted-foreground">
                 <Info className="w-16 h-16 mb-5" />
                 <h4 className="text-xl font-semibold text-foreground mb-2">
-                Aucune sortie notable ce mois-ci
+                Aucune sortie à afficher
                 </h4>
                 <p className="text-md">
-                Il semble que ce soit un mois calme. Essayez le mois précédent ou suivant pour voir plus de films.
+                 Il semble qu'il n'y ait pas de sorties à venir pour le moment.
                 </p>
             </div>
          </Card>
