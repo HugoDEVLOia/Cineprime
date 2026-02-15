@@ -36,15 +36,8 @@ function DirectLinksPanel({ media }: { media: Media }) {
                         </a>
                     </Button>
                     
-                    <Button asChild style={{ backgroundColor: '#4c1d95', color: '#fff' }} className="hover:bg-purple-900">
-                        <a href="https://xalaflix.io/" target="_blank" rel="noopener noreferrer" className="flex items-center">
-                            <Image src="https://xalaflix.io/upload/images/logo/1.png" alt="Xalaflix Logo" width={16} height={16} className="mr-2 rounded-sm"/>
-                            Xalaflix
-                        </a>
-                    </Button>
-                    
                     <Button asChild style={{ backgroundColor: '#212121', color: '#fff' }} className="hover:bg-black/80">
-                        <a href="https://purstream.to/" target="_blank" rel="noopener noreferrer" className="flex items-center">
+                        <a href="https://purstream.me/" target="_blank" rel="noopener noreferrer" className="flex items-center">
                             <Image src="https://purstream.to/assets/favicon.BYaz4d7M.ico" alt="PurStream Logo" width={16} height={16} className="mr-2 rounded-sm"/>
                             PurStream
                         </a>
