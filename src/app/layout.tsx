@@ -17,6 +17,7 @@ import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import { useRouter, usePathname } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import PwaInstallPrompt from '@/components/pwa-install-prompt';
 
 
 function AppLayout({ children }: { children: React.ReactNode }) {
@@ -25,11 +26,49 @@ function AppLayout({ children }: { children: React.ReactNode }) {
   const { isLoaded, hasCompletedOnboarding, username, avatar } = useUser();
   const router = useRouter();
   const pathname = usePathname();
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [showInstallPrompt, setShowInstallPrompt] = useState(false);
+
 
   useEffect(() => {
     setIsClient(true);
     document.documentElement.style.setProperty('--header-height', '80px');
   }, []);
+
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e: Event) => {
+      e.preventDefault();
+      const dismissed = localStorage.getItem('cineprime_pwa_install_dismissed');
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+
+      if (!dismissed && !isStandalone) {
+        setDeferredPrompt(e);
+        setShowInstallPrompt(true);
+      }
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
+  }, []);
+
+  const handleInstallClick = () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then(() => {
+        setShowInstallPrompt(false);
+        setDeferredPrompt(null);
+      });
+    }
+  };
+
+  const handleDismissClick = () => {
+    setShowInstallPrompt(false);
+    setDeferredPrompt(null);
+    localStorage.setItem('cineprime_pwa_install_dismissed', 'true');
+  };
 
   useEffect(() => {
     if (isLoaded && !hasCompletedOnboarding && pathname !== '/welcome') {
@@ -210,6 +249,7 @@ function AppLayout({ children }: { children: React.ReactNode }) {
       </footer>
       <Toaster />
       {showChatbot && <Chatbot />}
+      {showInstallPrompt && <PwaInstallPrompt onInstall={handleInstallClick} onDismiss={handleDismissClick} />}
     </>
   );
 }
