@@ -242,7 +242,7 @@ const mapApiDirectorToDirector = (crewMember: any): Director => ({
 });
 
 export async function getPopularMedia(
-    mediaType: 'movie' | 'tv' | 'person', 
+    mediaType: 'movie' | 'tv' | 'person',
     page: number = 1,
     timeWindow?: Exclude<TimeWindow, 'all'>,
     genreId?: number,
@@ -288,14 +288,11 @@ export async function getPopularMedia(
         }
         const data = await response.json();
 
-        // Fetch details for each item to get credits
-        const detailedMediaPromises = data.results
-            .filter((item: any) => item.poster_path || item.profile_path)
-            .map((item: any) => getMediaDetails(item.id.toString(), mediaType as 'movie' | 'tv'));
+        const media = data.results
+            .filter((item: any) => item.poster_path || (mediaType === 'person' && item.profile_path))
+            .map((item: any) => mapApiMediaToMedia(item, mediaType as MediaType));
 
-        const detailedMedia = (await Promise.all(detailedMediaPromises)).filter(Boolean) as Media[];
-
-        return { media: detailedMedia, totalPages: data.total_pages };
+        return { media, totalPages: data.total_pages };
     } catch (error) {
         console.error(`Error fetching popular ${mediaType} with filters:`, error);
         return { media: [], totalPages: 1 };
