@@ -1,10 +1,12 @@
-
 'use client';
 
 import type { Actor } from '@/services/tmdb';
 import { useMediaLists } from '@/hooks/use-media-lists';
+import { useUser } from '@/contexts/user-provider';
+import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { BarChartBig, Film, Tv, PlaySquare, Clock, Users, Pyramid, Info, Hourglass, Palette, UserCircle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { BarChartBig, Film, Tv, PlaySquare, Clock, Users, Pyramid, Info, Hourglass, Palette, UserCircle, User as UserIcon } from 'lucide-react';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, ResponsiveContainer } from "recharts";
 import { useMemo, useState, useEffect } from 'react';
@@ -43,17 +45,20 @@ function formatTotalWatchTime(totalMinutes: number): { display: string; subtitle
 
 
 export default function StatsPage() {
-  const { watchedList, isLoaded } = useMediaLists();
+  const { watchedList, isLoaded: listsAreLoaded } = useMediaLists();
+  const { isLoaded: userIsLoaded, hasCompletedOnboarding } = useUser();
   const [isLoadingClient, setIsLoadingClient] = useState(true);
 
+  const isFullyLoaded = listsAreLoaded && userIsLoaded;
+
   useEffect(() => {
-    if (isLoaded) {
+    if (isFullyLoaded) {
       setIsLoadingClient(false);
     }
-  }, [isLoaded]);
+  }, [isFullyLoaded]);
 
   const stats = useMemo(() => {
-    if (!isLoaded) return {
+    if (!isFullyLoaded) return {
       totalMoviesWatched: 0,
       totalSeriesWatched: 0,
       totalMediaWatched: 0,
@@ -71,7 +76,7 @@ export default function StatsPage() {
       totalMediaWatched: watchedList.length,
       totalWatchTimeMinutes: totalWatchTime,
     };
-  }, [watchedList, isLoaded]);
+  }, [watchedList, isFullyLoaded]);
 
   const formattedWatchTime = formatTotalWatchTime(stats.totalWatchTimeMinutes);
 
@@ -86,7 +91,7 @@ export default function StatsPage() {
   } satisfies ChartConfig;
 
   const genreStats = useMemo(() => {
-    if (!isLoaded) return [];
+    if (!isFullyLoaded) return [];
     const genreCounts: Record<string, number> = {};
     watchedList.forEach(media => {
       media.genres?.forEach(genre => {
@@ -97,7 +102,7 @@ export default function StatsPage() {
       .map(([name, value]) => ({ name, value }))
       .sort((a, b) => b.value - a.value)
       .slice(0, 10); // Top 10 genres
-  }, [watchedList, isLoaded]);
+  }, [watchedList, isFullyLoaded]);
 
   const genreChartData = useMemo(() => {
     return genreStats.map((stat, index) => ({
@@ -120,7 +125,7 @@ export default function StatsPage() {
 
 
   const actorStats = useMemo(() => {
-    if (!isLoaded) return [];
+    if (!isFullyLoaded) return [];
     const actorCounts: Record<string, { actor: Actor; count: number }> = {};
     watchedList.forEach(media => {
       media.cast?.forEach(actor => {
@@ -137,7 +142,7 @@ export default function StatsPage() {
       .filter(entry => entry.count > 1) // Only show actors seen more than once
       .sort((a, b) => b.count - a.count)
       .slice(0, 10); // Top 10 actors
-  }, [watchedList, isLoaded]);
+  }, [watchedList, isFullyLoaded]);
 
   const renderContent = () => {
     if (isLoadingClient) {
@@ -180,6 +185,25 @@ export default function StatsPage() {
       );
     }
     
+     if (!hasCompletedOnboarding) {
+        return (
+        <div className="flex flex-col items-center justify-center min-h-[calc(100vh-300px)] text-center">
+            <Card className="max-w-md p-8 shadow-lg">
+            <UserIcon className="w-16 h-16 text-primary mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-foreground mb-2">Connectez-vous pour voir vos statistiques</h2>
+            <p className="text-muted-foreground mb-6">
+                Créez un compte et commencez à marquer des films comme vus pour que vos statistiques personnalisées apparaissent ici.
+            </p>
+            <Button asChild size="lg">
+                <Link href="/welcome">
+                Se connecter ou créer un compte
+                </Link>
+            </Button>
+            </Card>
+        </div>
+        );
+    }
+
     if (watchedList.length === 0) {
       return (
           <Card className="shadow-lg rounded-xl p-10 bg-card mt-8">

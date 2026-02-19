@@ -108,20 +108,16 @@ function AppLayout({ children }: { children: React.ReactNode }) {
                         <Compass className="h-4 w-4" /> Découverte
                     </Button>
                   </Link>
-                  {isLoaded && hasCompletedOnboarding && (
-                    <>
-                      <Link href="/my-lists" className="text_sm font-medium text-foreground hover:text-primary transition-colors">
-                        <Button variant="ghost" className="gap-2 px-4 py-2">
-                          <Tv className="h-4 w-4" /> Mes Listes
-                        </Button>
-                      </Link>
-                      <Link href="/stats" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
-                        <Button variant="ghost" className="gap-2 px-4 py-2">
-                            <BarChart3 className="h-4 w-4" /> Statistiques
-                        </Button>
-                      </Link>
-                    </>
-                  )}
+                  <Link href="/my-lists" className="text_sm font-medium text-foreground hover:text-primary transition-colors">
+                    <Button variant="ghost" className="gap-2 px-4 py-2">
+                      <Tv className="h-4 w-4" /> Mes Listes
+                    </Button>
+                  </Link>
+                  <Link href="/stats" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+                    <Button variant="ghost" className="gap-2 px-4 py-2">
+                        <BarChart3 className="h-4 w-4" /> Statistiques
+                    </Button>
+                  </Link>
                   <Link href="/calendar" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
                     <Button variant="ghost" className="gap-2 px-4 py-2">
                         <CalendarDays className="h-4 w-4" /> Calendrier
@@ -199,24 +195,20 @@ function AppLayout({ children }: { children: React.ReactNode }) {
                             </Button>
                           </Link>
                         </SheetClose>
-                        {isLoaded && hasCompletedOnboarding && (
-                          <>
-                            <SheetClose asChild>
-                              <Link href="/my-lists">
-                                <Button variant="ghost" className="w-full justify-start gap-3 px-3 py-2.5 text-base">
-                                  <Tv className="h-5 w-5 text-muted-foreground" /> Mes Listes
-                                </Button>
-                              </Link>
-                            </SheetClose>
-                            <SheetClose asChild>
-                              <Link href="/stats">
-                                <Button variant="ghost" className="w-full justify-start gap-3 px-3 py-2.5 text-base">
-                                  <BarChart3 className="h-5 w-5 text-muted-foreground" /> Statistiques
-                                </Button>
-                              </Link>
-                            </SheetClose>
-                          </>
-                        )}
+                        <SheetClose asChild>
+                          <Link href="/my-lists">
+                            <Button variant="ghost" className="w-full justify-start gap-3 px-3 py-2.5 text-base">
+                              <Tv className="h-5 w-5 text-muted-foreground" /> Mes Listes
+                            </Button>
+                          </Link>
+                        </SheetClose>
+                        <SheetClose asChild>
+                          <Link href="/stats">
+                            <Button variant="ghost" className="w-full justify-start gap-3 px-3 py-2.5 text-base">
+                              <BarChart3 className="h-5 w-5 text-muted-foreground" /> Statistiques
+                            </Button>
+                          </Link>
+                        </SheetClose>
                          <SheetClose asChild>
                           <Link href="/calendar">
                             <Button variant="ghost" className="w-full justify-start gap-3 px-3 py-2.5 text-base">
