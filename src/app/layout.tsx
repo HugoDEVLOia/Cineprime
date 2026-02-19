@@ -18,6 +18,7 @@ import Head from 'next/head';
 import { useRouter, usePathname } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import PwaInstallPrompt from '@/components/pwa-install-prompt';
+import { Skeleton } from '@/components/ui/skeleton';
 
 
 function AppLayout({ children }: { children: React.ReactNode }) {
@@ -70,21 +71,7 @@ function AppLayout({ children }: { children: React.ReactNode }) {
     localStorage.setItem('cineprime_pwa_install_dismissed', 'true');
   };
 
-  useEffect(() => {
-    if (isLoaded && !hasCompletedOnboarding && pathname !== '/welcome') {
-      router.replace('/welcome');
-    }
-  }, [isLoaded, hasCompletedOnboarding, pathname, router]);
-
   const showChatbot = pathname !== '/discover';
-
-  if (!hasCompletedOnboarding && pathname !== '/welcome') {
-    return (
-       <div className="flex items-center justify-center min-h-screen bg-background">
-          {/* Vous pouvez mettre un spinner de chargement ici si vous le souhaitez */}
-       </div>
-    );
-  }
 
   if (pathname === '/welcome' || pathname === '/discover') {
     return <main>{children}</main>;
@@ -146,17 +133,32 @@ function AppLayout({ children }: { children: React.ReactNode }) {
                       <Search className="h-5 w-5" />
                     </Button>
                 </nav>
-                <Link href="/settings">
-                  <Button variant="ghost" className="gap-2 px-4 py-2 flex items-center">
-                    <Avatar className="h-8 w-8">
-                        <AvatarImage src={avatar || undefined} alt={username || 'Avatar'} />
-                        <AvatarFallback>
-                          <UserIcon className="h-4 w-4" />
-                        </AvatarFallback>
-                    </Avatar>
-                    <SettingsIcon className="h-4 w-4" />
-                  </Button>
-                </Link>
+                {isLoaded ? (
+                  hasCompletedOnboarding ? (
+                    <Link href="/settings">
+                      <Button variant="ghost" className="gap-2 px-4 py-2 flex items-center">
+                        <Avatar className="h-8 w-8">
+                            <AvatarImage src={avatar || undefined} alt={username || 'Avatar'} />
+                            <AvatarFallback>
+                              <UserIcon className="h-4 w-4" />
+                            </AvatarFallback>
+                        </Avatar>
+                        <SettingsIcon className="h-4 w-4" />
+                      </Button>
+                    </Link>
+                  ) : (
+                    <Link href="/welcome" className="ml-3">
+                      <Button>
+                          <UserIcon className="mr-2 h-4 w-4" />
+                          Se connecter
+                      </Button>
+                    </Link>
+                  )
+                ) : (
+                  <div className="ml-3">
+                    <Skeleton className="h-10 w-[140px] rounded-md" />
+                  </div>
+                )}
               </div>
 
               <div className="md:hidden flex items-center gap-2">
@@ -222,13 +224,25 @@ function AppLayout({ children }: { children: React.ReactNode }) {
                             </Button>
                           </Link>
                         </SheetClose>
-                        <SheetClose asChild>
-                          <Link href="/settings">
-                            <Button variant="ghost" className="w-full justify-start gap-3 px-3 py-2.5 text-base">
-                              <SettingsIcon className="h-5 w-5 text-muted-foreground" /> Paramètres
-                            </Button>
-                          </Link>
-                        </SheetClose>
+                        {isLoaded && (
+                          hasCompletedOnboarding ? (
+                            <SheetClose asChild>
+                              <Link href="/settings">
+                                <Button variant="ghost" className="w-full justify-start gap-3 px-3 py-2.5 text-base">
+                                  <SettingsIcon className="h-5 w-5 text-muted-foreground" /> Paramètres
+                                </Button>
+                              </Link>
+                            </SheetClose>
+                          ) : (
+                            <SheetClose asChild>
+                              <Link href="/welcome">
+                                <Button variant="ghost" className="w-full justify-start gap-3 px-3 py-2.5 text-base">
+                                  <UserIcon className="h-5 w-5 text-muted-foreground" /> Se connecter
+                                </Button>
+                              </Link>
+                            </SheetClose>
+                          )
+                        )}
                       </nav>
                     </div>
                   </SheetContent>
