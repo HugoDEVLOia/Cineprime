@@ -638,7 +638,7 @@ export default function MediaDetailsPage() {
                           rel="noopener noreferrer"
                           className="flex items-center"
                       >
-                          <Image src="https://purstream.to/assets/favicon.BYaz4d7M.ico" alt="PurStream Logo" width={20} height={20} className="mr-2 rounded-sm"/>
+                          <Image src="https://purstream.me/assets/favicon.BYaz4d7M.ico" alt="PurStream Logo" width={20} height={20} className="mr-2 rounded-sm"/>
                           PurStream
                       </a>
                   </Button>
@@ -878,6 +878,7 @@ function getSafeProfileImageUrl(path: string | null | undefined): string {
     
 
     
+
 
 
 

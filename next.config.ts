@@ -37,7 +37,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'purstream.to',
+        hostname: 'purstream.me',
         port: '',
         pathname: '/**',
       },

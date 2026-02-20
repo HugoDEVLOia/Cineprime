@@ -38,7 +38,7 @@ function DirectLinksPanel({ media }: { media: Media }) {
                     
                     <Button asChild style={{ backgroundColor: '#212121', color: '#fff' }} className="hover:bg-black/80">
                         <a href="https://purstream.me/" target="_blank" rel="noopener noreferrer" className="flex items-center">
-                            <Image src="https://purstream.to/assets/favicon.BYaz4d7M.ico" alt="PurStream Logo" width={16} height={16} className="mr-2 rounded-sm"/>
+                            <Image src="https://purstream.me/assets/favicon.BYaz4d7M.ico" alt="PurStream Logo" width={16} height={16} className="mr-2 rounded-sm"/>
                             PurStream
                         </a>
                     </Button>
