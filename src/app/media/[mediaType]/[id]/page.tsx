@@ -1,5 +1,3 @@
-
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -626,19 +624,17 @@ export default function MediaDetailsPage() {
               <div className="flex flex-wrap gap-3 pt-4 border-t border-border">
                   <Button asChild style={{ backgroundColor: '#E50914', color: '#F5F5F1' }} className="hover:bg-red-800">
                       <a href={`https://movix.blog/search?q=${encodeURIComponent(media.title)}`} target="_blank" rel="noopener noreferrer" className="flex items-center">
-                          <Image src="https://movix.blog/assets/movix-CzqwVOTS.png" alt="Movix Logo" width={20} height={20} className="mr-2 rounded-sm"/>
                           Movix
                       </a>
                   </Button>
                   
                   <Button asChild style={{ backgroundColor: '#212121', color: '#fff' }} className="hover:bg-black/80">
                       <a
-                          href={`https://purstream.me/`}
+                          href={`https://purstream.co/`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="flex items-center"
                       >
-                          <Image src="https://purstream.me/assets/favicon.BYaz4d7M.ico" alt="PurStream Logo" width={20} height={20} className="mr-2 rounded-sm"/>
                           PurStream
                       </a>
                   </Button>
@@ -874,24 +870,3 @@ function getSafeProfileImageUrl(path: string | null | undefined): string {
   }
   return 'https://picsum.photos/500/750?grayscale'; 
 }
-    
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

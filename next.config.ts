@@ -1,4 +1,3 @@
-
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
@@ -26,18 +25,6 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'cinepulse.lol',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'movix.blog',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'purstream.me',
         port: '',
         pathname: '/**',
       },

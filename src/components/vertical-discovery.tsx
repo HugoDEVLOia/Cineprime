@@ -1,5 +1,3 @@
-
-
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
@@ -31,14 +29,12 @@ function DirectLinksPanel({ media }: { media: Media }) {
                 <div className="flex flex-col gap-2 pt-3 border-t border-border">
                     <Button asChild style={{ backgroundColor: '#E50914', color: '#F5F5F1' }} className="hover:bg-red-800">
                         <a href={`https://movix.blog/search?q=${encodeURIComponent(media.title)}`} target="_blank" rel="noopener noreferrer" className="flex items-center">
-                            <Image src="https://movix.blog/assets/movix-CzqwVOTS.png" alt="Movix Logo" width={16} height={16} className="mr-2 rounded-sm"/>
                             Movix
                         </a>
                     </Button>
                     
                     <Button asChild style={{ backgroundColor: '#212121', color: '#fff' }} className="hover:bg-black/80">
-                        <a href="https://purstream.me/" target="_blank" rel="noopener noreferrer" className="flex items-center">
-                            <Image src="https://purstream.me/assets/favicon.BYaz4d7M.ico" alt="PurStream Logo" width={16} height={16} className="mr-2 rounded-sm"/>
+                        <a href="https://purstream.co/" target="_blank" rel="noopener noreferrer" className="flex items-center">
                             PurStream
                         </a>
                     </Button>
