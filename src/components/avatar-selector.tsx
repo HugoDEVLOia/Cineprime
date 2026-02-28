@@ -7,9 +7,22 @@ import { useState } from 'react';
 import { Label } from './ui/label';
 import { disneyAvatars, netflixAvatars } from '@/lib/avatars';
 
+/**
+ * Encodes an avatar path to be safe for URL usage.
+ * Handles spaces, plus signs, and ensures a leading slash.
+ */
 export const encodeAvatarPath = (path: string | null) => {
     if (!path) return null;
-    return path.replace(/\s/g, '%20');
+    
+    // Ensure it starts with a slash for root-relative resolving
+    const base = path.startsWith('/') ? path : `/${path}`;
+    
+    // Encode each segment to handle spaces and '+' correctly
+    return base
+        .split('/')
+        .map(segment => encodeURIComponent(segment))
+        .join('/')
+        .replace(/%2F/g, '/'); // Don't encode the slashes themselves
 }
 
 // Helper to capitalize strings for titles

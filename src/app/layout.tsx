@@ -18,6 +18,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import PwaInstallPrompt from '@/components/pwa-install-prompt';
 import { Skeleton } from '@/components/ui/skeleton';
+import { encodeAvatarPath } from '@/components/avatar-selector';
 
 
 function AppLayout({ children }: { children: React.ReactNode }) {
@@ -75,6 +76,8 @@ function AppLayout({ children }: { children: React.ReactNode }) {
   if (pathname === '/welcome' || pathname === '/discover') {
     return <main>{children}</main>;
   }
+
+  const encodedAvatar = encodeAvatarPath(avatar);
 
   return (
     <>
@@ -137,7 +140,7 @@ function AppLayout({ children }: { children: React.ReactNode }) {
                     <Link href="/settings">
                       <Button variant="ghost" className="gap-2 px-4 py-2 flex items-center">
                         <Avatar className="h-8 w-8">
-                            <AvatarImage src={avatar || undefined} alt={username || 'Avatar'} />
+                            <AvatarImage src={encodedAvatar || undefined} alt={username || 'Avatar'} />
                             <AvatarFallback>
                               <UserIcon className="h-4 w-4" />
                             </AvatarFallback>

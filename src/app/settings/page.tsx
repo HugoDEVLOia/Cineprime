@@ -1,4 +1,3 @@
-
 'use client';
 
 import type { ChangeEvent } from 'react';
@@ -137,6 +136,7 @@ export default function SettingsPage() {
                                 fill
                                 className="rounded-full object-cover border-4 border-primary"
                                 key={newAvatar} // Force re-render on avatar change
+                                unoptimized
                             />
                            )}
                         </div>
