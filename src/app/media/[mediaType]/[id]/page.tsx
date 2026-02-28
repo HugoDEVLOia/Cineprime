@@ -141,6 +141,61 @@ const WatchProviderDisplay: React.FC<WatchProviderSectionProps> = ({ providers, 
   );
 };
 
+function WatchLinksDialog({ media, children }: { media: Media, children: React.ReactNode }) {
+  const isAnime = media.keywords?.some(k => k.id === 210024);
+  const animeSamaUrl = `https://anime-sama.si/catalogue/${media.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')}/`;
+  const directWatchUrl = `https://cinepulse.lol/sheet/${media.mediaType}-${media.id}`;
+
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        {children}
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <PlaySquare className="h-5 w-5 text-primary" /> Regarder "{media.title}"
+          </DialogTitle>
+          <DialogDescription>
+            Choisissez une plateforme pour lancer le visionnage.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="flex flex-col gap-4 py-4">
+          <Button asChild size="lg" className="w-full h-16 text-lg font-bold" style={{ backgroundColor: '#1E1E1E' }}>
+            <a href={directWatchUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-3 text-[#FF4545]">
+              <Image src="https://cinepulse.lol/favicons/favicon.svg" alt="Cinepulse Logo" width={24} height={24}/>
+              Cinepulse (Recommandé)
+            </a>
+          </Button>
+          
+          <div className="grid grid-cols-1 gap-3">
+            <Button asChild size="lg" variant="outline" className="h-14 hover:bg-red-600 hover:text-white transition-colors" style={{ borderColor: '#E50914' }}>
+              <a href={`https://movix.blog/search?q=${encodeURIComponent(media.title)}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2">
+                Movix
+              </a>
+            </Button>
+            
+            <Button asChild size="lg" variant="outline" className="h-14 hover:bg-zinc-900 hover:text-white transition-colors">
+              <a href="https://purstream.co/" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2">
+                PurStream
+              </a>
+            </Button>
+
+            {isAnime && (
+              <Button asChild size="lg" variant="secondary" className="h-14">
+                <a href={animeSamaUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2">
+                  <Image src="https://cdn.statically.io/gh/Anime-Sama/IMG/img/autres/logo_icon.png" alt="Anime-Sama Logo" width={20} height={20} className="rounded-sm"/>
+                  Anime-Sama
+                </a>
+              </Button>
+            )}
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 function CompareDialog({ mediaToCompare, onCompare }: { mediaToCompare: Media, onCompare: (media: Media) => void }) {
   const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -373,9 +428,6 @@ export default function MediaDetailsPage() {
   const isToWatch = isInList(media.id, 'toWatch');
   const isWatched = isInList(media.id, 'watched');
   const trailerToDisplay = findBestTrailer(media.videos);
-  const isAnime = media.keywords?.some(k => k.id === 210024);
-  const animeSamaUrl = `https://anime-sama.si/catalogue/${media.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')}/`;
-  const directWatchUrl = `https://cinepulse.lol/sheet/${media.mediaType}-${media.id}`;
 
 
   const handleToggleList = async (listType: 'toWatch' | 'watched') => {
@@ -394,7 +446,6 @@ export default function MediaDetailsPage() {
         title: "Ajouté à la liste",
         description: `"${media.title}" a été ajouté à vos ${listType === 'watched' ? 'Vus' : 'À Regarder'}.`,
       });
-      // Logic to move between lists is handled in addToList hook
     }
 
     setIsTogglingList(false);
@@ -429,16 +480,13 @@ export default function MediaDetailsPage() {
               />
             </Card>
             
-            <a 
-              href={directWatchUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/poster:opacity-100 transition-opacity duration-300 z-10"
-            >
-              <div className="bg-primary/90 text-white rounded-full p-6 shadow-2xl scale-75 group-hover/poster:scale-100 transition-transform duration-300">
-                <Play className="h-12 w-12 fill-current" />
+            <WatchLinksDialog media={media}>
+              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/poster:opacity-100 transition-opacity duration-300 z-10">
+                <div className="bg-primary/90 text-white rounded-full p-6 shadow-2xl scale-75 group-hover/poster:scale-100 transition-transform duration-300">
+                  <Play className="h-12 w-12 fill-current" />
+                </div>
               </div>
-            </a>
+            </WatchLinksDialog>
           </div>
         </div>
 
@@ -448,9 +496,6 @@ export default function MediaDetailsPage() {
               <Badge variant={media.mediaType === 'movie' ? 'default' : 'secondary'} className="text-sm capitalize !px-3 !py-1.5 shadow">
                 {media.mediaType === 'movie' ? <FilmIcon className="h-4 w-4 mr-1.5"/> : <Tv className="h-4 w-4 mr-1.5" />}
                 {media.mediaType === 'movie' ? 'Film' : 'Série'}
-              </Badge>
-              <Badge variant="outline" className="text-sm border-primary text-primary bg-primary/5 gap-1.5 py-1.5">
-                <Sparkles className="h-3.5 w-3.5" /> Disponible maintenant
               </Badge>
             </div>
             <h1 className="text-4xl md:text-5xl font-extrabold text-foreground tracking-tight">{media.title}</h1>
@@ -523,15 +568,14 @@ export default function MediaDetailsPage() {
           <p className="text-foreground/80 leading-relaxed text-base md:text-lg">{media.description}</p>
 
           <div className="flex flex-col sm:flex-row flex-wrap gap-3">
-            <Button 
-              size="lg"
-              className="gap-2 w-full sm:w-auto py-4 px-10 text-lg font-bold bg-primary hover:bg-primary/90 shadow-xl shadow-primary/20 hover:scale-105 transition-all group"
-              asChild
-            >
-              <a href={directWatchUrl} target="_blank" rel="noopener noreferrer">
+            <WatchLinksDialog media={media}>
+              <Button 
+                size="lg"
+                className="gap-2 w-full sm:w-auto py-4 px-10 text-lg font-bold bg-primary hover:bg-primary/90 shadow-xl shadow-primary/20 hover:scale-105 transition-all group"
+              >
                 <Play className="h-6 w-6 fill-current group-hover:animate-pulse" /> Regarder maintenant
-              </a>
-            </Button>
+              </Button>
+            </WatchLinksDialog>
             <Button 
               size="lg"
               variant={isToWatch ? "default" : "outline"}
@@ -625,7 +669,7 @@ export default function MediaDetailsPage() {
       {media.watchProviders && media.watchProviders.FR && (
         <section>
           <h2 className="text-3xl font-bold mb-6 text-foreground flex items-center gap-2">
-            <Radio className="text-primary h-7 w-7"/> Où Regarder
+            <Radio className="text-primary h-7 w-7"/> Où Regarder (Officiel)
           </h2>
           <WatchProviderDisplay providers={media.watchProviders.FR} mediaTitle={media.title} />
         </section>
@@ -639,7 +683,7 @@ export default function MediaDetailsPage() {
            <CardContent className="p-0 space-y-4">
               <Button asChild size="lg" className="w-full sm:w-auto" style={{ backgroundColor: '#1E1E1E' }}>
                 <a
-                  href={directWatchUrl}
+                  href={`https://cinepulse.lol/sheet/${media.mediaType}-${media.id}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center justify-center gap-2 text-[#FF4545]"
@@ -667,10 +711,10 @@ export default function MediaDetailsPage() {
                       </a>
                   </Button>
 
-                  {isAnime && (
+                  {media.keywords?.some(k => k.id === 210024) && (
                     <Button asChild variant="secondary">
                       <a 
-                        href={animeSamaUrl}
+                        href={`https://anime-sama.si/catalogue/${media.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')}/`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center"
