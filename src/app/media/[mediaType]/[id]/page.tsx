@@ -22,7 +22,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Star, Users, User, Clapperboard, Tv, CalendarDays, Clock, Eye, CheckCircle, FilmIcon, ServerCrash, Info, ChevronRight, Loader2, PlaySquare, Radio, ExternalLink, Shield, Link2, XCircle, GitCompare, Search, SearchX, DollarSign, Sparkles } from 'lucide-react';
+import { Star, Users, User, Clapperboard, Tv, CalendarDays, Clock, Eye, CheckCircle, FilmIcon, ServerCrash, Info, ChevronRight, Loader2, PlaySquare, Radio, ExternalLink, Shield, Link2, XCircle, GitCompare, Search, SearchX, DollarSign, Sparkles, Play } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import MediaCard from '@/components/media-card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -375,6 +375,7 @@ export default function MediaDetailsPage() {
   const trailerToDisplay = findBestTrailer(media.videos);
   const isAnime = media.keywords?.some(k => k.id === 210024);
   const animeSamaUrl = `https://anime-sama.si/catalogue/${media.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')}/`;
+  const directWatchUrl = `https://cinepulse.lol/sheet/${media.mediaType}-${media.id}`;
 
 
   const handleToggleList = async (listType: 'toWatch' | 'watched') => {
@@ -414,26 +415,44 @@ export default function MediaDetailsPage() {
     >
       <section className="grid md:grid-cols-12 gap-8 md:gap-12 items-start">
         <div className="md:col-span-4 xl:col-span-3 flex justify-center md:justify-start">
-          <Card className="overflow-hidden shadow-xl rounded-xl w-[250px] sm:w-[300px] md:w-full">
-            <Image
-              src={media.posterUrl}
-              alt={`Affiche de ${media.title}`}
-              width={500}
-              height={750}
-              className="object-cover w-full h-auto"
-              priority
-              data-ai-hint={`${mediaType === 'movie' ? 'affiche film' : 'affiche série'}`}
-               onError={(e) => { e.currentTarget.src = 'https://picsum.photos/500/750?grayscale&blur=2'; }}
-            />
-          </Card>
+          <div className="relative group/poster cursor-pointer w-[250px] sm:w-[300px] md:w-full">
+            <Card className="overflow-hidden shadow-2xl rounded-2xl border-0">
+              <Image
+                src={media.posterUrl}
+                alt={`Affiche de ${media.title}`}
+                width={500}
+                height={750}
+                className="object-cover w-full h-auto transition-transform duration-500 group-hover/poster:scale-110 group-hover/poster:blur-[2px]"
+                priority
+                data-ai-hint={`${mediaType === 'movie' ? 'affiche film' : 'affiche série'}`}
+                onError={(e) => { e.currentTarget.src = 'https://picsum.photos/500/750?grayscale&blur=2'; }}
+              />
+            </Card>
+            
+            <a 
+              href={directWatchUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/poster:opacity-100 transition-opacity duration-300 z-10"
+            >
+              <div className="bg-primary/90 text-white rounded-full p-6 shadow-2xl scale-75 group-hover/poster:scale-100 transition-transform duration-300">
+                <Play className="h-12 w-12 fill-current" />
+              </div>
+            </a>
+          </div>
         </div>
 
         <div className="md:col-span-8 xl:col-span-9 space-y-6">
           <div className="space-y-3">
-            <Badge variant={media.mediaType === 'movie' ? 'default' : 'secondary'} className="text-sm capitalize !px-3 !py-1.5 shadow">
-              {media.mediaType === 'movie' ? <FilmIcon className="h-4 w-4 mr-1.5"/> : <Tv className="h-4 w-4 mr-1.5" />}
-              {media.mediaType === 'movie' ? 'Film' : 'Série'}
-            </Badge>
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge variant={media.mediaType === 'movie' ? 'default' : 'secondary'} className="text-sm capitalize !px-3 !py-1.5 shadow">
+                {media.mediaType === 'movie' ? <FilmIcon className="h-4 w-4 mr-1.5"/> : <Tv className="h-4 w-4 mr-1.5" />}
+                {media.mediaType === 'movie' ? 'Film' : 'Série'}
+              </Badge>
+              <Badge variant="outline" className="text-sm border-primary text-primary bg-primary/5 gap-1.5 py-1.5">
+                <Sparkles className="h-3.5 w-3.5" /> Disponible maintenant
+              </Badge>
+            </div>
             <h1 className="text-4xl md:text-5xl font-extrabold text-foreground tracking-tight">{media.title}</h1>
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-muted-foreground text-sm md:text-base">
               <div className="flex items-center">
@@ -504,6 +523,15 @@ export default function MediaDetailsPage() {
           <p className="text-foreground/80 leading-relaxed text-base md:text-lg">{media.description}</p>
 
           <div className="flex flex-col sm:flex-row flex-wrap gap-3">
+            <Button 
+              size="lg"
+              className="gap-2 w-full sm:w-auto py-4 px-10 text-lg font-bold bg-primary hover:bg-primary/90 shadow-xl shadow-primary/20 hover:scale-105 transition-all group"
+              asChild
+            >
+              <a href={directWatchUrl} target="_blank" rel="noopener noreferrer">
+                <Play className="h-6 w-6 fill-current group-hover:animate-pulse" /> Regarder maintenant
+              </a>
+            </Button>
             <Button 
               size="lg"
               variant={isToWatch ? "default" : "outline"}
@@ -611,7 +639,7 @@ export default function MediaDetailsPage() {
            <CardContent className="p-0 space-y-4">
               <Button asChild size="lg" className="w-full sm:w-auto" style={{ backgroundColor: '#1E1E1E' }}>
                 <a
-                  href={`https://cinepulse.lol/sheet/${media.mediaType}-${media.id}`}
+                  href={directWatchUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center justify-center gap-2 text-[#FF4545]"
