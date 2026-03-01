@@ -47,13 +47,15 @@ function DirectLinksPanel({ media }: { media: Media }) {
                             <AlertDialogTitle className="flex items-center gap-2">
                                 <AlertTriangle className="h-5 w-5 text-yellow-500" /> Avertissement
                             </AlertDialogTitle>
-                            <AlertDialogDescription className="space-y-3 pt-2 text-left">
-                                <p className="font-semibold text-foreground">Vous allez accéder à un lecteur externe.</p>
-                                <ul className="list-disc pl-5 space-y-1.5 text-sm text-muted-foreground">
-                                    <li><strong>Ne cliquez sur aucune popup</strong> ou publicité.</li>
-                                    <li>Fermez immédiatement toute fenêtre suspecte.</li>
-                                    <li>CinéPrime <strong>n'héberge aucun contenu</strong> et décline toute responsabilité.</li>
-                                </ul>
+                            <AlertDialogDescription asChild>
+                                <div className="space-y-3 pt-2 text-left">
+                                    <p className="font-semibold text-foreground">Vous allez accéder à un lecteur externe.</p>
+                                    <ul className="list-disc pl-5 space-y-1.5 text-sm text-muted-foreground">
+                                        <li><strong>Ne cliquez sur aucune popup</strong> ou publicité.</li>
+                                        <li>Fermez immédiatement toute fenêtre suspecte.</li>
+                                        <li>CinéPrime <strong>n'héberge aucun contenu</strong> et décline toute responsabilité.</li>
+                                    </ul>
+                                </div>
                             </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>

@@ -167,13 +167,15 @@ function PlayerWarningWrapper({ url, children }: { url: string, children: React.
           <AlertDialogTitle className="flex items-center gap-2">
             <AlertTriangle className="h-5 w-5 text-yellow-500" /> Avertissement de sécurité
           </AlertDialogTitle>
-          <AlertDialogDescription className="space-y-4 pt-2">
-            <p className="font-semibold text-foreground">Vous allez être redirigé vers un service tiers externe.</p>
-            <ul className="list-disc pl-5 space-y-2 text-sm text-muted-foreground">
-              <li><strong>Ne cliquez sur aucune popup</strong> ou publicité qui pourrait s'afficher sur le site du lecteur.</li>
-              <li>Si une nouvelle fenêtre s'ouvre en dehors du lecteur, <strong>fermez-la immédiatement</strong>.</li>
-              <li>CinéPrime <strong>n'héberge aucun contenu</strong> vidéo et décline toute responsabilité concernant les sites tiers.</li>
-            </ul>
+          <AlertDialogDescription asChild>
+            <div className="space-y-4 pt-2">
+              <p className="font-semibold text-foreground">Vous allez être redirigé vers un service tiers externe.</p>
+              <ul className="list-disc pl-5 space-y-2 text-sm text-muted-foreground">
+                <li><strong>Ne cliquez sur aucune popup</strong> ou publicité qui pourrait s'afficher sur le site du lecteur.</li>
+                <li>Si une nouvelle fenêtre s'ouvre en dehors du lecteur, <strong>fermez-la immédiatement</strong>.</li>
+                <li>CinéPrime <strong>n'héberge aucun contenu</strong> vidéo et décline toute responsabilité concernant les sites tiers.</li>
+              </ul>
+            </div>
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter className="mt-4">
