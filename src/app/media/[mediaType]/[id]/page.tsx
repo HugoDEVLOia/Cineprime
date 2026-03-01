@@ -22,12 +22,23 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Users, User, Tv, CalendarDays, Clock, Eye, CheckCircle, FilmIcon, ServerCrash, Info, ChevronRight, Loader2, PlaySquare, Radio, ExternalLink, Shield, Link2, GitCompare, Search, SearchX, DollarSign, Play, Star } from 'lucide-react';
+import { Users, User, Tv, CalendarDays, Clock, Eye, CheckCircle, FilmIcon, ServerCrash, Info, ChevronRight, Loader2, PlaySquare, Radio, ExternalLink, Shield, Link2, GitCompare, Search, SearchX, DollarSign, Play, Star, AlertTriangle } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import MediaCard from '@/components/media-card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Command, CommandInput } from "@/components/ui/command"
 import { useDebounce } from '@/hooks/use-debounce';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -145,6 +156,37 @@ const WatchProviderDisplay: React.FC<WatchProviderSectionProps> = ({ providers, 
   );
 };
 
+function PlayerWarningWrapper({ url, children }: { url: string, children: React.ReactNode }) {
+  return (
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        {children}
+      </AlertDialogTrigger>
+      <AlertDialogContent className="sm:max-w-md">
+        <AlertDialogHeader>
+          <AlertDialogTitle className="flex items-center gap-2">
+            <AlertTriangle className="h-5 w-5 text-yellow-500" /> Avertissement de sécurité
+          </AlertDialogTitle>
+          <AlertDialogDescription className="space-y-4 pt-2">
+            <p className="font-semibold text-foreground">Vous allez être redirigé vers un service tiers externe.</p>
+            <ul className="list-disc pl-5 space-y-2 text-sm text-muted-foreground">
+              <li><strong>Ne cliquez sur aucune popup</strong> ou publicité qui pourrait s'afficher sur le site du lecteur.</li>
+              <li>Si une nouvelle fenêtre s'ouvre en dehors du lecteur, <strong>fermez-la immédiatement</strong>.</li>
+              <li>CinéPrime <strong>n'héberge aucun contenu</strong> vidéo et décline toute responsabilité concernant les sites tiers.</li>
+            </ul>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter className="mt-4">
+          <AlertDialogCancel>Annuler</AlertDialogCancel>
+          <AlertDialogAction asChild>
+            <a href={url} target="_blank" rel="noopener noreferrer">Accéder au lecteur</a>
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+}
+
 function WatchLinksDialog({ media, children }: { media: Media, children: React.ReactNode }) {
   const isAnime = media.keywords?.some(k => k.id === 210024);
   const animeSamaUrl = `https://anime-sama.si/catalogue/${media.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')}/`;
@@ -168,12 +210,14 @@ function WatchLinksDialog({ media, children }: { media: Media, children: React.R
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-4 py-4">
-          <Button asChild size="lg" className="w-full h-16 text-lg font-bold shadow-lg hover:scale-[1.02] transition-transform" style={{ backgroundColor: '#000000' }}>
-            <a href={cineprimeUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-3 text-white">
-              <Image src="/assets/mascotte/mascotte.svg" alt="Popito" width={32} height={32} />
-              Lecteur CinéPrime (Recommandé)
-            </a>
-          </Button>
+          <PlayerWarningWrapper url={cineprimeUrl}>
+            <Button size="lg" className="w-full h-16 text-lg font-bold shadow-lg hover:scale-[1.02] transition-transform" style={{ backgroundColor: '#000000' }}>
+              <div className="flex items-center justify-center gap-3 text-white">
+                <Image src="/assets/mascotte/mascotte.svg" alt="Popito" width={32} height={32} />
+                Lecteur CinéPrime (Recommandé)
+              </div>
+            </Button>
+          </PlayerWarningWrapper>
 
           <Button asChild size="lg" className="w-full h-16 text-lg font-bold shadow-lg hover:scale-[1.02] transition-transform" style={{ backgroundColor: '#1E1E1E' }}>
             <a href={directWatchUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-3 text-[#FF4545]">
@@ -704,17 +748,14 @@ export default function MediaDetailsPage() {
         <Card className="shadow-lg rounded-xl p-4 md:p-6 bg-card">
            <CardContent className="p-0 space-y-4">
               <div className="flex flex-wrap gap-4">
-                <Button asChild size="lg" className="w-full sm:w-auto h-14 shadow-md hover:scale-[1.02] transition-transform border-0" style={{ backgroundColor: '#000000' }}>
-                  <a
-                    href={media.mediaType === 'movie' ? `https://frembed.work/api/film.php?id=${media.id}` : `https://frembed.work/api/serie.php?id=${media.id}&sa=1&epi=1`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 text-white font-bold"
-                  >
-                    <Image src="/assets/mascotte/mascotte.svg" alt="Popito" width={24} height={24} />
-                    Lecteur CinéPrime (Recommandé)
-                  </a>
-                </Button>
+                <PlayerWarningWrapper url={media.mediaType === 'movie' ? `https://frembed.work/api/film.php?id=${media.id}` : `https://frembed.work/api/serie.php?id=${media.id}&sa=1&epi=1`}>
+                  <Button size="lg" className="w-full sm:w-auto h-14 shadow-md hover:scale-[1.02] transition-transform border-0" style={{ backgroundColor: '#000000' }}>
+                    <div className="flex items-center justify-center gap-2 text-white font-bold">
+                      <Image src="/assets/mascotte/mascotte.svg" alt="Popito" width={24} height={24} />
+                      Lecteur CinéPrime (Recommandé)
+                    </div>
+                  </Button>
+                </PlayerWarningWrapper>
 
                 <Button asChild size="lg" className="w-full sm:w-auto h-14 shadow-md hover:scale-[1.02] transition-transform border-0" style={{ backgroundColor: '#1E1E1E' }}>
                   <a
@@ -824,16 +865,11 @@ export default function MediaDetailsPage() {
                               <Star className="h-3.5 w-3.5 text-yellow-400 fill-yellow-400" />
                               <span>{episode.rating.toFixed(1)}</span>
                             </div>
-                            <Button asChild size="icon" variant="ghost" className="h-8 w-8 text-primary hover:text-primary hover:bg-primary/10">
-                                <a 
-                                    href={`https://frembed.work/api/serie.php?id=${media.id}&sa=${season.seasonNumber}&epi=${episode.episodeNumber}`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    title="Regarder cet épisode sur CinéPrime"
-                                >
-                                    <PlaySquare className="h-5 w-5" />
-                                </a>
-                            </Button>
+                            <PlayerWarningWrapper url={`https://frembed.work/api/serie.php?id=${media.id}&sa=${season.seasonNumber}&epi=${episode.episodeNumber}`}>
+                              <Button size="icon" variant="ghost" className="h-8 w-8 text-primary hover:text-primary hover:bg-primary/10" title="Regarder cet épisode sur CinéPrime">
+                                <PlaySquare className="h-5 w-5" />
+                              </Button>
+                            </PlayerWarningWrapper>
                           </div>
                         </div>
                         {episode.description && <p className="text-sm text-foreground/80 mt-2 line-clamp-2">{episode.description}</p>}

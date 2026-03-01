@@ -5,11 +5,22 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { getPopularMedia, type Media, getMediaDetails } from '@/services/tmdb';
 import { Button } from '@/components/ui/button';
-import { Loader2, Heart, Check, CalendarDays, ArrowLeft, Link2, Star, PlaySquare } from 'lucide-react';
+import { Loader2, Heart, Check, CalendarDays, ArrowLeft, Link2, Star, PlaySquare, AlertTriangle } from 'lucide-react';
 import { useMediaLists } from '@/hooks/use-media-lists';
 import { useToast } from '@/hooks/use-toast';
 import { AnimatePresence, motion, useAnimation } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 function DirectLinksPanel({ media }: { media: Media }) {
     const isAnime = media.keywords?.some(k => k.id === 210024);
@@ -22,12 +33,37 @@ function DirectLinksPanel({ media }: { media: Media }) {
         <div className="w-full h-full bg-card/90 backdrop-blur-md p-6 flex flex-col justify-center items-center text-card-foreground">
             <h3 className="text-xl font-bold mb-6 flex items-center gap-2"><Link2 className="text-primary" /> Liens Directs</h3>
             <div className="flex flex-col gap-3 w-full max-w-xs text-sm">
-                <Button asChild size="lg" className="w-full h-14 shadow-lg hover:scale-[1.02] transition-transform border-0" style={{ backgroundColor: '#000000' }}>
-                    <a href={cineprimeUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 text-white font-bold">
-                        <Image src="/assets/mascotte/mascotte.svg" alt="Popito" width={24} height={24} />
-                        Lecteur CinéPrime
-                    </a>
-                </Button>
+                <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                        <Button size="lg" className="w-full h-14 shadow-lg hover:scale-[1.02] transition-transform border-0" style={{ backgroundColor: '#000000' }}>
+                            <div className="flex items-center justify-center gap-2 text-white font-bold">
+                                <Image src="/assets/mascotte/mascotte.svg" alt="Popito" width={24} height={24} />
+                                Lecteur CinéPrime
+                            </div>
+                        </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent className="sm:max-w-md">
+                        <AlertDialogHeader>
+                            <AlertDialogTitle className="flex items-center gap-2">
+                                <AlertTriangle className="h-5 w-5 text-yellow-500" /> Avertissement
+                            </AlertDialogTitle>
+                            <AlertDialogDescription className="space-y-3 pt-2 text-left">
+                                <p className="font-semibold text-foreground">Vous allez accéder à un lecteur externe.</p>
+                                <ul className="list-disc pl-5 space-y-1.5 text-sm text-muted-foreground">
+                                    <li><strong>Ne cliquez sur aucune popup</strong> ou publicité.</li>
+                                    <li>Fermez immédiatement toute fenêtre suspecte.</li>
+                                    <li>CinéPrime <strong>n'héberge aucun contenu</strong> et décline toute responsabilité.</li>
+                                </ul>
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>Annuler</AlertDialogCancel>
+                            <AlertDialogAction asChild>
+                                <a href={cineprimeUrl} target="_blank" rel="noopener noreferrer">Ouvrir le lecteur</a>
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
 
                 <Button asChild size="lg" className="w-full h-14 shadow-lg hover:scale-[1.02] transition-transform border-0" style={{ backgroundColor: '#1E1E1E' }}>
                     <a href={`https://cinepulse.lol/sheet/${media.mediaType}-${media.id}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 text-[#FF4545] font-bold">
