@@ -161,7 +161,7 @@ function WatchLinksDialog({ media, children }: { media: Media, children: React.R
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-4 py-4">
-          <Button asChild size="lg" className="w-full h-16 text-lg font-bold" style={{ backgroundColor: '#1E1E1E' }}>
+          <Button asChild size="lg" className="w-full h-16 text-lg font-bold shadow-lg hover:scale-[1.02] transition-transform" style={{ backgroundColor: '#1E1E1E' }}>
             <a href={directWatchUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-3 text-[#FF4545]">
               <Image src="https://cinepulse.lol/favicons/favicon.svg" alt="Cinepulse Logo" width={24} height={24}/>
               Cinepulse (Recommandé)
@@ -169,20 +169,20 @@ function WatchLinksDialog({ media, children }: { media: Media, children: React.R
           </Button>
           
           <div className="grid grid-cols-1 gap-3">
-            <Button asChild size="lg" variant="outline" className="h-14 hover:bg-red-600 hover:text-white transition-colors" style={{ borderColor: '#E50914' }}>
+            <Button asChild size="lg" className="h-14 font-bold text-white shadow-md hover:brightness-110 hover:scale-[1.02] transition-all" style={{ backgroundColor: '#E50914' }}>
               <a href={`https://movix.blog/search?q=${encodeURIComponent(media.title)}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2">
                 Movix
               </a>
             </Button>
             
-            <Button asChild size="lg" variant="outline" className="h-14 hover:bg-zinc-900 hover:text-white transition-colors">
+            <Button asChild size="lg" className="h-14 font-bold text-white shadow-md hover:brightness-125 hover:scale-[1.02] transition-all" style={{ backgroundColor: '#212121' }}>
               <a href="https://purstream.co/" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2">
                 PurStream
               </a>
             </Button>
 
             {isAnime && (
-              <Button asChild size="lg" variant="secondary" className="h-14">
+              <Button asChild size="lg" className="h-14 font-bold text-white shadow-md hover:brightness-110 hover:scale-[1.02] transition-all" style={{ backgroundColor: '#5D3FD3' }}>
                 <a href={animeSamaUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2">
                   <Image src="https://cdn.statically.io/gh/Anime-Sama/IMG/img/autres/logo_icon.png" alt="Anime-Sama Logo" width={20} height={20} className="rounded-sm"/>
                   Anime-Sama
@@ -681,12 +681,12 @@ export default function MediaDetailsPage() {
         </h2>
         <Card className="shadow-lg rounded-xl p-4 md:p-6 bg-card">
            <CardContent className="p-0 space-y-4">
-              <Button asChild size="lg" className="w-full sm:w-auto" style={{ backgroundColor: '#1E1E1E' }}>
+              <Button asChild size="lg" className="w-full sm:w-auto h-14 shadow-md hover:scale-[1.02] transition-transform" style={{ backgroundColor: '#1E1E1E' }}>
                 <a
                   href={`https://cinepulse.lol/sheet/${media.mediaType}-${media.id}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 text-[#FF4545]"
+                  className="flex items-center justify-center gap-2 text-[#FF4545] font-bold"
                 >
                   <Image src="https://cinepulse.lol/favicons/favicon.svg" alt="Cinepulse Logo" width={20} height={20}/>
                   Cinepulse (Recommandé)
@@ -694,13 +694,13 @@ export default function MediaDetailsPage() {
               </Button>
               
               <div className="flex flex-wrap gap-3 pt-4 border-t border-border">
-                  <Button asChild style={{ backgroundColor: '#E50914', color: '#F5F5F1' }} className="hover:bg-red-800">
+                  <Button asChild className="font-bold text-white shadow-md hover:brightness-110 hover:scale-[1.02] transition-all" style={{ backgroundColor: '#E50914' }}>
                       <a href={`https://movix.blog/search?q=${encodeURIComponent(media.title)}`} target="_blank" rel="noopener noreferrer" className="flex items-center">
                           Movix
                       </a>
                   </Button>
                   
-                  <Button asChild style={{ backgroundColor: '#212121', color: '#fff' }} className="hover:bg-black/80">
+                  <Button asChild className="font-bold text-white shadow-md hover:brightness-125 hover:scale-[1.02] transition-all" style={{ backgroundColor: '#212121' }}>
                       <a
                           href={`https://purstream.co/`}
                           target="_blank"
@@ -712,7 +712,7 @@ export default function MediaDetailsPage() {
                   </Button>
 
                   {media.keywords?.some(k => k.id === 210024) && (
-                    <Button asChild variant="secondary">
+                    <Button asChild className="font-bold text-white shadow-md hover:brightness-110 hover:scale-[1.02] transition-all" style={{ backgroundColor: '#5D3FD3' }}>
                       <a 
                         href={`https://anime-sama.si/catalogue/${media.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')}/`}
                         target="_blank"
