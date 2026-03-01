@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, use } from 'react';
 import { useParams, notFound, useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -18,7 +18,7 @@ import {
   type CountryProviderDetails,
   type ProviderDetail,
 } from '@/services/tmdb';
-import { getRTScores } from '@/services/rotten-tomatoes'; // Import de la nouvelle API
+import { getRTScores } from '@/services/rotten-tomatoes'; 
 import { useMediaLists } from '@/hooks/use-media-lists';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -357,11 +357,11 @@ export default function MediaDetailsPage() {
           setSeasons(seriesSeasons);
         }
 
-        // Récupération des vrais scores Rotten Tomatoes
+        // Récupération des vrais scores Rotten Tomatoes via SERVER ACTION (pour éviter CORS)
         if (mediaDetails.title && mediaType === 'movie') {
           getRTScores(mediaDetails.title).then(scores => {
             if (scores) setRealRTScores(scores);
-          });
+          }).catch(err => console.warn("RT scores fetch failed (handled):", err));
         }
       } catch (err) {
         console.error('Erreur lors de la récupération des détails du média:', err);

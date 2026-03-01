@@ -21,6 +21,7 @@ import { Badge } from '@/components/ui/badge';
 import MediaCarousel from '@/components/media-carousel';
 import { cn } from '@/lib/utils';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { TomatoIcon } from '@/components/rating-icons';
 
 export default function HomePage() {
   const [heroCarouselItems, setHeroCarouselItems] = useState<Media[]>([]);
@@ -243,8 +244,8 @@ export default function HomePage() {
                   </h1>
                   <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-4 gap-y-2 text-white/90 text-sm md:text-base mt-3 mb-5">
                     <div className="flex items-center">
-                      <Star className="w-5 h-5 mr-1.5 text-yellow-400 fill-yellow-400" />
-                      <span className="font-medium">{currentHeroItem.averageRating.toFixed(1)}</span>
+                      <TomatoIcon score={currentHeroItem.tomatometer} className="w-5 h-5 mr-1.5" />
+                      <span className="font-medium">{currentHeroItem.tomatometer}%</span>
                     </div>
                     {currentHeroItem.releaseDate && (
                       <div className="flex items-center">
