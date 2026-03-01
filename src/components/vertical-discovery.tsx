@@ -16,7 +16,7 @@ function DirectLinksPanel({ media }: { media: Media }) {
     const animeSamaUrl = `https://anime-sama.si/catalogue/${media.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')}/`;
     const cineprimeUrl = media.mediaType === 'movie' 
         ? `https://frembed.work/api/film.php?id=${media.id}`
-        : `https://frembed.work/api/serie.php?id=${media.id}`;
+        : `https://frembed.work/api/serie.php?id=${media.id}&sa=1&epi=1`;
 
     return (
         <div className="w-full h-full bg-card/90 backdrop-blur-md p-6 flex flex-col justify-center items-center text-card-foreground">

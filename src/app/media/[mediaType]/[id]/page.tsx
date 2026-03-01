@@ -151,7 +151,7 @@ function WatchLinksDialog({ media, children }: { media: Media, children: React.R
   const directWatchUrl = `https://cinepulse.lol/sheet/${media.mediaType}-${media.id}`;
   const cineprimeUrl = media.mediaType === 'movie' 
     ? `https://frembed.work/api/film.php?id=${media.id}`
-    : `https://frembed.work/api/serie.php?id=${media.id}`;
+    : `https://frembed.work/api/serie.php?id=${media.id}&sa=1&epi=1`;
 
   return (
     <Dialog>
@@ -706,7 +706,7 @@ export default function MediaDetailsPage() {
               <div className="flex flex-wrap gap-4">
                 <Button asChild size="lg" className="w-full sm:w-auto h-14 shadow-md hover:scale-[1.02] transition-transform border-0" style={{ backgroundColor: '#000000' }}>
                   <a
-                    href={media.mediaType === 'movie' ? `https://frembed.work/api/film.php?id=${media.id}` : `https://frembed.work/api/serie.php?id=${media.id}`}
+                    href={media.mediaType === 'movie' ? `https://frembed.work/api/film.php?id=${media.id}` : `https://frembed.work/api/serie.php?id=${media.id}&sa=1&epi=1`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center justify-center gap-2 text-white font-bold"
@@ -813,16 +813,30 @@ export default function MediaDetailsPage() {
                   {season.episodes.length > 0 ? (
                     <ul className="space-y-3 max-h-96 overflow-y-auto scrollbar-thin pr-2">
                     {season.episodes.sort((a,b) => a.episodeNumber - b.episodeNumber).map(episode => (
-                      <li key={episode.id} className="p-4 border border-border rounded-lg bg-card shadow-sm hover:border-primary/30 transition-colors">
+                      <li key={episode.id} className="p-4 border border-border rounded-lg bg-card shadow-sm hover:border-primary/30 transition-colors group/ep">
                         <div className="flex justify-between items-start gap-2">
-                          <h4 className="font-semibold text-foreground flex-grow">{episode.episodeNumber}. {episode.title}</h4>
-                          <div className="flex items-center text-xs text-muted-foreground whitespace-nowrap gap-1.5">
-                            <Star className="h-3.5 w-3.5 text-yellow-400 fill-yellow-400" />
-                            <span>{episode.rating.toFixed(1)}</span>
+                          <div className="flex-grow">
+                            <h4 className="font-semibold text-foreground">{episode.episodeNumber}. {episode.title}</h4>
+                            {episode.airDate && <p className="text-xs text-muted-foreground mt-0.5">Diffusé le : {new Date(episode.airDate).toLocaleDateString('fr-FR')}</p>}
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <div className="flex items-center text-xs text-muted-foreground whitespace-nowrap gap-1.5">
+                              <Star className="h-3.5 w-3.5 text-yellow-400 fill-yellow-400" />
+                              <span>{episode.rating.toFixed(1)}</span>
+                            </div>
+                            <Button asChild size="icon" variant="ghost" className="h-8 w-8 text-primary hover:text-primary hover:bg-primary/10">
+                                <a 
+                                    href={`https://frembed.work/api/serie.php?id=${media.id}&sa=${season.seasonNumber}&epi=${episode.episodeNumber}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    title="Regarder cet épisode sur CinéPrime"
+                                >
+                                    <PlaySquare className="h-5 w-5" />
+                                </a>
+                            </Button>
                           </div>
                         </div>
-                        {episode.airDate && <p className="text-xs text-muted-foreground mt-0.5">Diffusé le : {new Date(episode.airDate).toLocaleDateString('fr-FR')}</p>}
-                        {episode.description && <p className="text-sm text-foreground/80 mt-2 line-clamp-3">{episode.description}</p>}
+                        {episode.description && <p className="text-sm text-foreground/80 mt-2 line-clamp-2">{episode.description}</p>}
                         {!episode.description && <p className="text-sm text-muted-foreground mt-2 italic">Aucune description pour cet épisode.</p>}
                       </li>
                     ))}
