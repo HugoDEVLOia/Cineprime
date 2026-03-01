@@ -25,7 +25,7 @@ import {
 function DirectLinksPanel({ media }: { media: Media }) {
     const isAnime = media.keywords?.some(k => k.id === 210024);
     const animeSamaUrl = `https://anime-sama.si/catalogue/${media.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')}/`;
-    const cineprimeUrl = media.mediaType === 'movie' 
+    const frembedUrl = media.mediaType === 'movie' 
         ? `https://frembed.work/api/film.php?id=${media.id}`
         : `https://frembed.work/api/serie.php?id=${media.id}&sa=1&epi=1`;
 
@@ -38,7 +38,7 @@ function DirectLinksPanel({ media }: { media: Media }) {
                         <Button size="lg" className="w-full h-14 shadow-lg hover:scale-[1.02] transition-transform border-0" style={{ backgroundColor: '#000000' }}>
                             <div className="flex items-center justify-center gap-2 text-white font-bold">
                                 <Image src="/assets/mascotte/mascotte.svg" alt="Popito" width={24} height={24} />
-                                Lecteur CinéPrime
+                                Lecteur Frembed
                             </div>
                         </Button>
                     </AlertDialogTrigger>
@@ -61,7 +61,7 @@ function DirectLinksPanel({ media }: { media: Media }) {
                         <AlertDialogFooter>
                             <AlertDialogCancel>Annuler</AlertDialogCancel>
                             <AlertDialogAction asChild>
-                                <a href={cineprimeUrl} target="_blank" rel="noopener noreferrer">Ouvrir le lecteur</a>
+                                <a href={frembedUrl} target="_blank" rel="noopener noreferrer">Ouvrir le lecteur</a>
                             </AlertDialogAction>
                         </AlertDialogFooter>
                     </AlertDialogContent>

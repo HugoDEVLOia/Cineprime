@@ -193,7 +193,7 @@ function WatchLinksDialog({ media, children }: { media: Media, children: React.R
   const isAnime = media.keywords?.some(k => k.id === 210024);
   const animeSamaUrl = `https://anime-sama.si/catalogue/${media.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')}/`;
   const directWatchUrl = `https://cinepulse.lol/sheet/${media.mediaType}-${media.id}`;
-  const cineprimeUrl = media.mediaType === 'movie' 
+  const frembedUrl = media.mediaType === 'movie' 
     ? `https://frembed.work/api/film.php?id=${media.id}`
     : `https://frembed.work/api/serie.php?id=${media.id}&sa=1&epi=1`;
 
@@ -212,11 +212,11 @@ function WatchLinksDialog({ media, children }: { media: Media, children: React.R
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-4 py-4">
-          <PlayerWarningWrapper url={cineprimeUrl}>
+          <PlayerWarningWrapper url={frembedUrl}>
             <Button size="lg" className="w-full h-16 text-lg font-bold shadow-lg hover:scale-[1.02] transition-transform" style={{ backgroundColor: '#000000' }}>
               <div className="flex items-center justify-center gap-3 text-white">
                 <Image src="/assets/mascotte/mascotte.svg" alt="Popito" width={32} height={32} />
-                Lecteur CinéPrime (Recommandé)
+                Lecteur Frembed
               </div>
             </Button>
           </PlayerWarningWrapper>
@@ -754,7 +754,7 @@ export default function MediaDetailsPage() {
                   <Button size="lg" className="w-full sm:w-auto h-14 shadow-md hover:scale-[1.02] transition-transform border-0" style={{ backgroundColor: '#000000' }}>
                     <div className="flex items-center justify-center gap-2 text-white font-bold">
                       <Image src="/assets/mascotte/mascotte.svg" alt="Popito" width={24} height={24} />
-                      Lecteur CinéPrime (Recommandé)
+                      Lecteur Frembed
                     </div>
                   </Button>
                 </PlayerWarningWrapper>
@@ -868,7 +868,7 @@ export default function MediaDetailsPage() {
                               <span>{episode.rating.toFixed(1)}</span>
                             </div>
                             <PlayerWarningWrapper url={`https://frembed.work/api/serie.php?id=${media.id}&sa=${season.seasonNumber}&epi=${episode.episodeNumber}`}>
-                              <Button size="icon" variant="ghost" className="h-8 w-8 text-primary hover:text-primary hover:bg-primary/10" title="Regarder cet épisode sur CinéPrime">
+                              <Button size="icon" variant="ghost" className="h-8 w-8 text-primary hover:text-primary hover:bg-primary/10" title="Regarder cet épisode sur Frembed">
                                 <PlaySquare className="h-5 w-5" />
                               </Button>
                             </PlayerWarningWrapper>
