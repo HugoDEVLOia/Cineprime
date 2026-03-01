@@ -149,6 +149,7 @@ function WatchLinksDialog({ media, children }: { media: Media, children: React.R
   const isAnime = media.keywords?.some(k => k.id === 210024);
   const animeSamaUrl = `https://anime-sama.si/catalogue/${media.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')}/`;
   const directWatchUrl = `https://cinepulse.lol/sheet/${media.mediaType}-${media.id}`;
+  const vistemoUrl = `https://www.vistemo.xyz/watch/${media.mediaType}/${media.id}`;
 
   return (
     <Dialog>
@@ -165,10 +166,17 @@ function WatchLinksDialog({ media, children }: { media: Media, children: React.R
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-4 py-4">
+          <Button asChild size="lg" className="w-full h-16 text-lg font-bold shadow-lg hover:scale-[1.02] transition-transform" style={{ backgroundColor: '#000000' }}>
+            <a href={vistemoUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-3 text-white">
+              <PlaySquare className="h-6 w-6 text-primary" />
+              Vistemo (Recommandé)
+            </a>
+          </Button>
+
           <Button asChild size="lg" className="w-full h-16 text-lg font-bold shadow-lg hover:scale-[1.02] transition-transform" style={{ backgroundColor: '#1E1E1E' }}>
             <a href={directWatchUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-3 text-[#FF4545]">
               <Image src="https://cinepulse.lol/favicons/favicon.svg" alt="Cinepulse Logo" width={24} height={24}/>
-              Cinepulse (Recommandé)
+              Cinepulse
             </a>
           </Button>
           
@@ -693,17 +701,31 @@ export default function MediaDetailsPage() {
         </h2>
         <Card className="shadow-lg rounded-xl p-4 md:p-6 bg-card">
            <CardContent className="p-0 space-y-4">
-              <Button asChild size="lg" className="w-full sm:w-auto h-14 shadow-md hover:scale-[1.02] transition-transform border-0" style={{ backgroundColor: '#1E1E1E' }}>
-                <a
-                  href={`https://cinepulse.lol/sheet/${media.mediaType}-${media.id}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 text-[#FF4545] font-bold"
-                >
-                  <Image src="https://cinepulse.lol/favicons/favicon.svg" alt="Cinepulse Logo" width={20} height={20}/>
-                  Cinepulse (Recommandé)
-                </a>
-              </Button>
+              <div className="flex flex-wrap gap-4">
+                <Button asChild size="lg" className="w-full sm:w-auto h-14 shadow-md hover:scale-[1.02] transition-transform border-0" style={{ backgroundColor: '#000000' }}>
+                  <a
+                    href={`https://www.vistemo.xyz/watch/${media.mediaType}/${media.id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 text-white font-bold"
+                  >
+                    <PlaySquare className="h-5 w-5 text-primary" />
+                    Vistemo (Recommandé)
+                  </a>
+                </Button>
+
+                <Button asChild size="lg" className="w-full sm:w-auto h-14 shadow-md hover:scale-[1.02] transition-transform border-0" style={{ backgroundColor: '#1E1E1E' }}>
+                  <a
+                    href={`https://cinepulse.lol/sheet/${media.mediaType}-${media.id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 text-[#FF4545] font-bold"
+                  >
+                    <Image src="https://cinepulse.lol/favicons/favicon.svg" alt="Cinepulse Logo" width={20} height={20}/>
+                    Cinepulse
+                  </a>
+                </Button>
+              </div>
               
               <div className="flex flex-wrap gap-3 pt-4 border-t border-border">
                   <Button asChild className="font-bold text-white shadow-md hover:brightness-110 hover:scale-[1.02] transition-all border-0" style={{ backgroundColor: '#E50914' }}>

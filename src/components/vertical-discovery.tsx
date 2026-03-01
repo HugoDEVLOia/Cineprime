@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { getPopularMedia, type Media, getMediaDetails } from '@/services/tmdb';
 import { Button } from '@/components/ui/button';
-import { Loader2, Heart, Check, CalendarDays, ArrowLeft, Link2, Star } from 'lucide-react';
+import { Loader2, Heart, Check, CalendarDays, ArrowLeft, Link2, Star, PlaySquare } from 'lucide-react';
 import { useMediaLists } from '@/hooks/use-media-lists';
 import { useToast } from '@/hooks/use-toast';
 import { AnimatePresence, motion, useAnimation } from 'framer-motion';
@@ -14,15 +14,23 @@ import { cn } from '@/lib/utils';
 function DirectLinksPanel({ media }: { media: Media }) {
     const isAnime = media.keywords?.some(k => k.id === 210024);
     const animeSamaUrl = `https://anime-sama.si/catalogue/${media.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')}/`;
+    const vistemoUrl = `https://www.vistemo.xyz/watch/${media.mediaType === 'movie' ? 'movie' : 'tv'}/${media.id}`;
 
     return (
         <div className="w-full h-full bg-card p-6 flex flex-col justify-center items-center text-card-foreground">
             <h3 className="text-xl font-bold mb-6 flex items-center gap-2"><Link2 /> Liens Directs</h3>
             <div className="flex flex-col gap-3 w-full max-w-xs text-sm">
+                <Button asChild size="lg" className="w-full" style={{ backgroundColor: '#000000' }}>
+                    <a href={vistemoUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 text-white font-bold">
+                        <PlaySquare className="h-5 w-5 text-primary" />
+                        Vistemo (Recommandé)
+                    </a>
+                </Button>
+
                 <Button asChild size="lg" className="w-full" style={{ backgroundColor: '#1E1E1E' }}>
                     <a href={`https://cinepulse.lol/sheet/movie-${media.id}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 text-[#FF4545]">
                         <Image src="https://cinepulse.lol/favicons/favicon.svg" alt="Cinepulse Logo" width={20} height={20}/>
-                        Cinepulse (Recommandé)
+                        Cinepulse
                     </a>
                 </Button>
                 
