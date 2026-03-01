@@ -8,10 +8,9 @@ import { useUser } from '@/contexts/user-provider';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Copy, AlertTriangle, Loader2, SettingsIcon, SunMoon, Heart, Coffee, LogOut, User as UserIcon, Save } from 'lucide-react';
+import { Share2, FileDown, AlertTriangle, Loader2, SettingsIcon, SunMoon, Heart, Coffee, LogOut, User as UserIcon, Save } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Textarea } from '@/components/ui/textarea';
 import { ThemeSwitcher } from '@/components/theme-switcher';
 import {
   AlertDialog,
@@ -29,11 +28,10 @@ import { Label } from '@/components/ui/label';
 import AvatarSelector, { encodeAvatarPath } from '@/components/avatar-selector';
 
 export default function SettingsPage() {
-  const { toWatchList, watchedList, setLists, isLoaded: listsAreLoaded } = useMediaLists();
+  const { toWatchList, watchedList, isLoaded: listsAreLoaded } = useMediaLists();
   const { username, avatar, setUsernameAndAvatar, clearUserData, isLoaded: userIsLoaded } = useUser();
   const { toast } = useToast();
 
-  const [exportedCode, setExportedCode] = useState<string | null>(null);
   const [isExporting, setIsExporting] = useState(false);
   
   // State for profile editing
@@ -49,34 +47,49 @@ export default function SettingsPage() {
   }, [username, avatar, userIsLoaded]);
 
 
-  const handleGenerateExportCode = () => {
+  const handleExportData = async () => {
     if (!listsAreLoaded || !userIsLoaded) {
       toast({ title: "Exportation impossible", description: "Les données ne sont pas encore chargées.", variant: "destructive" });
       return;
     }
     setIsExporting(true);
-    setExportedCode(null); 
 
     try {
       const dataToExport = { username, avatar, toWatchList, watchedList };
       const jsonString = JSON.stringify(dataToExport, null, 2);
-      const base64String = btoa(unescape(encodeURIComponent(jsonString)));
-      setExportedCode(base64String);
-      toast({ title: "Code de sauvegarde généré", description: "Copiez ce code pour restaurer votre profil et vos listes." });
+      const date = new Date().toISOString().split('T')[0];
+      const fileName = `cineprime_sauvegarde_${username || 'backup'}_${date}.json`;
+      const file = new File([jsonString], fileName, { type: 'application/json' });
+
+      // Check if Web Share API is available and can share files
+      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: 'Ma sauvegarde CinéPrime',
+          text: `Voici ma liste de films et séries sur CinéPrime (${username}).`,
+        });
+        toast({ title: "Partage réussi", description: "Votre fichier de sauvegarde a été partagé." });
+      } else {
+        // Fallback to traditional download
+        const url = URL.createObjectURL(file);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        toast({ title: "Sauvegarde téléchargée", description: "Le fichier JSON a été enregistré sur votre appareil." });
+      }
     } catch (error) {
-      toast({ title: "Erreur d'exportation", variant: "destructive" });
+      console.error("Export error:", error);
+      // Don't show toast if user cancelled share
+      if (error instanceof Error && error.name !== 'AbortError') {
+        toast({ title: "Erreur d'exportation", description: "Une erreur est survenue lors de la création de la sauvegarde.", variant: "destructive" });
+      }
     } finally {
       setIsExporting(false);
     }
-  };
-
-  const handleCopyToClipboard = () => {
-    if (!exportedCode) return;
-    navigator.clipboard.writeText(exportedCode).then(() => {
-      toast({ title: "Code copié !", description: "Le code a été copié dans le presse-papiers." });
-    }).catch(() => {
-      toast({ title: "Erreur de copie", variant: "destructive" });
-    });
   };
 
   const handleLogout = () => {
@@ -168,39 +181,35 @@ export default function SettingsPage() {
             <Card className="max-w-2xl mx-auto shadow-lg rounded-xl">
               <CardHeader>
                 <CardTitle className="text-xl font-semibold flex items-center gap-2 text-foreground">
-                  <Copy className="h-6 w-6 text-primary"/>Gérer mes données
+                  <Share2 className="h-6 w-6 text-primary"/> Sauvegarde des données
                 </CardTitle>
                 <CardDescription>
-                  Exportez toutes vos données (profil et listes) sous forme d'un code de sauvegarde unique.
+                  Exportez votre profil et vos listes pour les transférer sur un autre appareil.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <Alert variant="default" className="bg-accent/20 border-accent/50 text-accent-foreground [&>svg]:text-accent">
                   <AlertTriangle className="h-5 w-5" />
-                  <AlertTitle className="font-semibold">Important : Code de Sauvegarde</AlertTitle>
+                  <AlertTitle className="font-semibold">Information</AlertTitle>
                   <AlertDescription>
-                    Ce code contient TOUTES vos données. Conservez-le précieusement pour vous connecter sur un autre appareil ou navigateur. N'utilisez la fonction d'importation que sur la page de bienvenue.
+                    Cette action génère un fichier contenant TOUTES vos données. Vous pourrez l'utiliser sur la page de bienvenue pour restaurer votre session.
                   </AlertDescription>
                 </Alert>
 
-                <div>
-                  <Button onClick={handleGenerateExportCode} variant="default" className="w-full sm:w-auto" disabled={!listsAreLoaded || isExporting}>
-                    {isExporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Copy className="mr-2 h-4 w-4" />}
-                    Générer mon code de sauvegarde
+                <div className="flex flex-col gap-4">
+                  <Button 
+                    onClick={handleExportData} 
+                    variant="default" 
+                    size="lg"
+                    className="w-full py-6 text-lg font-bold"
+                    disabled={!listsAreLoaded || isExporting}
+                  >
+                    {isExporting ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <Save className="mr-2 h-5 w-5" />}
+                    Sauvegarder mes données
                   </Button>
-                  {exportedCode && (
-                    <div className="mt-4 space-y-2">
-                      <Textarea
-                        readOnly
-                        value={exportedCode}
-                        className="h-32 resize-none bg-muted/50 font-mono text-xs"
-                        aria-label="Code de sauvegarde généré"
-                      />
-                      <Button onClick={handleCopyToClipboard} variant="outline" size="sm" className="w-full sm:w-auto">
-                        <Copy className="mr-2 h-4 w-4" /> Copier le code
-                      </Button>
-                    </div>
-                  )}
+                  <p className="text-xs text-center text-muted-foreground">
+                    Le partage natif sera privilégié, sinon un fichier JSON sera téléchargé.
+                  </p>
                 </div>
               </CardContent>
             </Card>
@@ -223,7 +232,7 @@ export default function SettingsPage() {
                             <AlertDialogHeader>
                                 <AlertDialogTitle>Êtes-vous absolument sûr ?</AlertDialogTitle>
                                 <AlertDialogDescription>
-                                    Cette action supprimera votre profil et toutes vos listes de ce navigateur. Assurez-vous d'avoir sauvegardé votre code si vous souhaitez les récupérer plus tard.
+                                    Cette action supprimera votre profil et toutes vos listes de ce navigateur. Assurez-vous d'avoir exporté votre fichier de sauvegarde si vous souhaitez les récupérer plus tard.
                                 </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>

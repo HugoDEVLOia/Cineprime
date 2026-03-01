@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@/contexts/user-provider';
 import Image from 'next/image';
@@ -13,7 +13,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { useMediaLists, type Media } from '@/hooks/use-media-lists';
 import { cn } from '@/lib/utils';
-import { User, LogIn, Loader2 } from 'lucide-react';
+import { User, LogIn, Loader2, Upload, FileJson } from 'lucide-react';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import AvatarSelector from '@/components/avatar-selector';
 import { netflixAvatars } from '@/lib/avatars';
@@ -23,6 +23,7 @@ export default function WelcomePage() {
     const [selectedAvatar, setSelectedAvatar] = useState(netflixAvatars[0]);
     const [importCode, setImportCode] = useState('');
     const [isImporting, setIsImporting] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const { setUsernameAndAvatar, markOnboardingAsComplete } = useUser();
     const { setLists } = useMediaLists();
@@ -43,6 +44,26 @@ export default function WelcomePage() {
         markOnboardingAsComplete();
         router.push('/');
     };
+
+    const validateAndProcessData = (importedData: any) => {
+        if (importedData.username && importedData.avatar && Array.isArray(importedData.toWatchList) && Array.isArray(importedData.watchedList)) {
+            const isValidMediaArray = (arr: any[]): arr is Media[] => 
+                arr.every(item => typeof item.id === 'string' && typeof item.title === 'string' && (item.mediaType === 'movie' || item.mediaType === 'tv'));
+            
+            if (isValidMediaArray(importedData.toWatchList) && isValidMediaArray(importedData.watchedList)) {
+                setLists(importedData.toWatchList, importedData.watchedList);
+                setUsernameAndAvatar(importedData.username, importedData.avatar);
+                markOnboardingAsComplete();
+                router.push('/');
+                toast({ title: "Restauration réussie", description: `Bon retour, ${importedData.username} !` });
+                return true;
+            } else {
+                throw new Error("Données de listes invalides.");
+            }
+        } else {
+            throw new Error("La structure du fichier est incorrecte.");
+        }
+    };
     
     const handleImportFromCode = () => {
         if (!importCode.trim()) {
@@ -51,23 +72,52 @@ export default function WelcomePage() {
         }
         setIsImporting(true);
         try {
-          const jsonString = decodeURIComponent(escape(atob(importCode.trim())));
-          const importedData = JSON.parse(jsonString);
+          // Check if it's raw JSON or old Base64 format
+          let importedData;
+          const trimmedCode = importCode.trim();
+          
+          if (trimmedCode.startsWith('{')) {
+              importedData = JSON.parse(trimmedCode);
+          } else {
+              const jsonString = decodeURIComponent(escape(atob(trimmedCode)));
+              importedData = JSON.parse(jsonString);
+          }
 
-          if (importedData.username && importedData.avatar && Array.isArray(importedData.toWatchList) && Array.isArray(importedData.watchedList)) {
-            const isValidMediaArray = (arr: any[]): arr is Media[] => arr.every(item => typeof item.id === 'string' && typeof item.title === 'string' && (item.mediaType === 'movie' || item.mediaType === 'tv'));
-            if (isValidMediaArray(importedData.toWatchList) && isValidMediaArray(importedData.watchedList)) {
-              setLists(importedData.toWatchList, importedData.watchedList);
-              setUsernameAndAvatar(importedData.username, importedData.avatar);
-              markOnboardingAsComplete();
-              router.push('/');
-            } else { throw new Error("Données de listes invalides."); }
-          } else { throw new Error("La structure du code est incorrecte."); }
+          validateAndProcessData(importedData);
         } catch (error: any) {
           toast({ title: "Erreur d'importation", description: "Le code est invalide ou corrompu.", variant: "destructive" });
         } finally {
           setIsImporting(false);
         }
+    };
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setIsImporting(true);
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            try {
+                const content = event.target?.result as string;
+                let importedData;
+                
+                // Handle both raw JSON and old base64 formats in file
+                if (content.trim().startsWith('{')) {
+                    importedData = JSON.parse(content);
+                } else {
+                    const jsonString = decodeURIComponent(escape(atob(content.trim())));
+                    importedData = JSON.parse(jsonString);
+                }
+                
+                validateAndProcessData(importedData);
+            } catch (error) {
+                toast({ title: "Fichier invalide", description: "Ce fichier n'est pas une sauvegarde valide de CinéPrime.", variant: "destructive" });
+            } finally {
+                setIsImporting(false);
+            }
+        };
+        reader.readAsText(file);
     };
     
     return (
@@ -99,18 +149,53 @@ export default function WelcomePage() {
                         </TabsContent>
 
                         <TabsContent value="login" className="mt-6">
-                           <div className="flex flex-col justify-center space-y-4 max-w-md mx-auto py-8">
-                                <CardHeader className="p-0 text-center mb-4">
+                           <div className="flex flex-col justify-center space-y-6 max-w-md mx-auto py-8">
+                                <CardHeader className="p-0 text-center mb-2">
                                     <CardTitle>Restaurer vos données</CardTitle>
-                                    <CardDescription>Collez votre code de sauvegarde pour retrouver votre profil et vos listes.</CardDescription>
+                                    <CardDescription>Importez votre fichier de sauvegarde pour retrouver votre profil et vos listes.</CardDescription>
                                 </CardHeader>
-                                <div className="space-y-2">
-                                    <Label htmlFor="import-code" className="font-semibold">Code de sauvegarde</Label>
-                                    <Textarea id="import-code" placeholder="Collez votre code ici..." value={importCode} onChange={(e) => setImportCode(e.target.value)} className="min-h-[150px] font-mono text-xs" />
+                                
+                                <div className="space-y-4">
+                                    <input 
+                                        type="file" 
+                                        accept=".json" 
+                                        className="hidden" 
+                                        ref={fileInputRef} 
+                                        onChange={handleFileChange} 
+                                    />
+                                    <Button 
+                                        onClick={() => fileInputRef.current?.click()} 
+                                        variant="outline" 
+                                        className="w-full h-24 border-dashed border-2 flex flex-col gap-2 hover:bg-primary/5 hover:border-primary/50 transition-all"
+                                        disabled={isImporting}
+                                    >
+                                        {isImporting ? <Loader2 className="h-8 w-8 animate-spin" /> : <Upload className="h-8 w-8 text-primary" />}
+                                        <span className="font-semibold text-lg">Importer un fichier JSON</span>
+                                    </Button>
+
+                                    <div className="relative">
+                                        <div className="absolute inset-0 flex items-center">
+                                            <span className="w-full border-t border-border"></span>
+                                        </div>
+                                        <div className="relative flex justify-center text-xs uppercase">
+                                            <span className="bg-card px-2 text-muted-foreground">Ou via un code</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="import-code" className="text-xs text-muted-foreground">Coller le contenu du fichier ici</Label>
+                                        <Textarea 
+                                            id="import-code" 
+                                            placeholder="Ex: {'username': '...'}" 
+                                            value={importCode} 
+                                            onChange={(e) => setImportCode(e.target.value)} 
+                                            className="min-h-[100px] font-mono text-xs" 
+                                        />
+                                    </div>
+                                    <Button onClick={handleImportFromCode} className="w-full h-12" variant="secondary" disabled={isImporting}>
+                                        {isImporting ? <Loader2 className="animate-spin mr-2"/> : <FileJson className="mr-2"/>} Restaurer par le texte
+                                    </Button>
                                 </div>
-                                <Button onClick={handleImportFromCode} className="w-full text-lg py-6" disabled={isImporting}>
-                                    {isImporting ? <Loader2 className="animate-spin mr-2"/> : <LogIn className="mr-2"/>} Se Connecter
-                                </Button>
                             </div>
                         </TabsContent>
                     </Tabs>
