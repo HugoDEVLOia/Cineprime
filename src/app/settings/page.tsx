@@ -7,7 +7,7 @@ import { useUser } from '@/contexts/user-provider';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Share2, AlertTriangle, Loader2, Info, Heart, Coffee, LogOut, User as UserIcon, Save, Github, Globe } from 'lucide-react';
+import { Share2, AlertTriangle, Loader2, Info, Heart, Coffee, LogOut, User as UserIcon, Save, Globe } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import {
@@ -248,12 +248,12 @@ export default function SettingsPage() {
         
         <TabsContent value="about" className="mt-8 space-y-8 max-w-2xl mx-auto">
            <Card className="shadow-lg rounded-xl overflow-hidden">
-            <CardHeader className="text-center bg-muted/30 pb-8">
-              <div className="mx-auto w-20 h-20 mb-4">
-                <Image src="/assets/icon/favicon.svg" alt="CinéPrime Logo" width={80} height={80} />
+            <CardHeader className="text-center bg-primary text-primary-foreground pb-8">
+              <div className="mx-auto w-20 h-20 mb-4 bg-white/10 rounded-full p-2 backdrop-blur-sm">
+                <Image src="/assets/icon/favicon.svg" alt="CinéPrime Logo" width={80} height={80} className="brightness-0 invert" />
               </div>
               <CardTitle className="text-3xl font-bold">CinéPrime</CardTitle>
-              <CardDescription>Version 1.2.0 • Créé avec passion</CardDescription>
+              <CardDescription className="text-primary-foreground/80">Version 1.2.0 • Créé avec passion</CardDescription>
             </CardHeader>
             <CardContent className="pt-8 space-y-6">
               <div className="space-y-4">
@@ -268,11 +268,10 @@ export default function SettingsPage() {
                 <div className="flex items-center justify-between">
                   <span className="font-medium text-foreground">HugoDEVLO</span>
                   <div className="flex gap-2">
-                    <Button variant="outline" size="icon" asChild>
-                      <a href="https://github.com/HugoDEVLO" target="_blank" rel="noopener noreferrer"><Github className="h-4 w-4" /></a>
-                    </Button>
-                    <Button variant="outline" size="icon" asChild>
-                      <a href="https://hugodevlo.com" target="_blank" rel="noopener noreferrer"><Globe className="h-4 w-4" /></a>
+                    <Button variant="outline" size="sm" asChild className="gap-2">
+                      <a href="https://hugodevlo.fr" target="_blank" rel="noopener noreferrer">
+                        <Globe className="h-4 w-4" /> hugodevlo.fr
+                      </a>
                     </Button>
                   </div>
                 </div>

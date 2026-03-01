@@ -81,7 +81,7 @@ function AppLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/80 backdrop-blur-lg" style={{ height: 'var(--header-height)' }}>
+      <header className="sticky top-0 z-50 w-full border-b-2 border-primary bg-background/80 backdrop-blur-lg" style={{ height: 'var(--header-height)' }}>
         <div className="container flex h-full items-center justify-between px-4 sm:px-6 lg:px-8">
           {isSearchActive ? (
             <div className="flex items-center w-full gap-2">
