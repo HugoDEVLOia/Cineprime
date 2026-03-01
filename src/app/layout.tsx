@@ -175,7 +175,11 @@ function AppLayout({ children }: { children: React.ReactNode }) {
                       <span className="sr-only">Ouvrir le menu</span>
                     </Button>
                   </SheetTrigger>
-                  <SheetContent side="right" className="w-full max-w-xs p-0 bg-background text-foreground">
+                  <SheetContent 
+                    side="right" 
+                    className="w-full max-w-xs p-0 bg-background text-foreground"
+                    onOpenAutoFocus={(e) => e.preventDefault()}
+                  >
                     <SheetHeader className="p-4 border-b border-border">
                       <SheetTitle className="text-lg font-semibold text-primary">Menu</SheetTitle>
                     </SheetHeader>
