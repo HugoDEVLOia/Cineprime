@@ -5,9 +5,10 @@ import type { Media } from '@/services/tmdb';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Film, TvIcon, Briefcase, CalendarDays, Star } from 'lucide-react';
+import { Film, TvIcon, Briefcase, CalendarDays } from 'lucide-react';
 import { Badge } from './ui/badge';
 import { Skeleton } from './ui/skeleton';
+import ScoreCircle from './score-circle';
 
 interface MediaCardProps {
   media: Media;
@@ -64,8 +65,13 @@ export default function MediaCard({ media, imageLoading = 'lazy' }: MediaCardPro
           </div>
         </Link>
         {getBadge()}
+        {media.mediaType !== 'person' && media.averageRating > 0 && (
+          <div className="absolute bottom-0 left-3 translate-y-1/2 z-10">
+            <ScoreCircle score={media.averageRating} size="sm" />
+          </div>
+        )}
       </CardHeader>
-      <CardContent className="p-3 flex-grow flex flex-col justify-between">
+      <CardContent className={cn("p-3 flex-grow flex flex-col justify-between", media.mediaType !== 'person' && "pt-6")}>
         <div>
           <Link href={linkUrl} className="hover:text-primary transition-colors">
             <CardTitle className="text-md font-bold mb-1.5 line-clamp-2 leading-tight text-foreground group-hover:text-primary">
@@ -74,18 +80,11 @@ export default function MediaCard({ media, imageLoading = 'lazy' }: MediaCardPro
           </Link>
           {media.mediaType !== 'person' ? (
             <div className="flex items-center text-xs text-muted-foreground mb-2 space-x-2">
-              <div className="flex items-center gap-1.5">
-                <Star className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />
-                <span className="font-bold text-foreground">{media.averageRating}</span>
-              </div>
               {media.releaseDate && (
-                <>
-                  <span className="text-muted-foreground/50">•</span>
-                  <div className="flex items-center">
-                    <CalendarDays className="w-4 h-4 mr-1" />
-                    <span className="font-medium">{new Date(media.releaseDate).getFullYear()}</span>
-                  </div>
-                </>
+                <div className="flex items-center">
+                  <CalendarDays className="w-4 h-4 mr-1" />
+                  <span className="font-medium">{new Date(media.releaseDate).getFullYear()}</span>
+                </div>
               )}
             </div>
           ) : (

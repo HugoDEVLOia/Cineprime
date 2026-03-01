@@ -6,12 +6,13 @@ import { useSearchParams, notFound } from 'next/navigation';
 import { getMediaDetails, type Media } from '@/services/tmdb';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { ServerCrash, GitCompare, CalendarDays, Clock, Users, FilmIcon, Award, DollarSign, Star } from 'lucide-react';
+import { ServerCrash, GitCompare, CalendarDays, Clock, Users, FilmIcon, Award, DollarSign } from 'lucide-react';
 import Image from 'next/image';
 import { Card, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
+import ScoreCircle from '@/components/score-circle';
 
 function ComparePageComponent() {
     const searchParams = useSearchParams();
@@ -140,9 +141,13 @@ function ComparePageComponent() {
                     </TableHeader>
                     <TableBody>
                         <TableRow className={getRowClass(movieA.averageRating, movieB.averageRating)}>
-                            <TableCell className="font-medium flex items-center gap-2"><Star className="h-4 w-4 text-yellow-400 fill-yellow-400"/>Note TMDB</TableCell>
-                            <TableCell className={`text-center ${getWinnerClass(movieA.averageRating, movieB.averageRating)}`}>{movieA.averageRating}/10</TableCell>
-                            <TableCell className={`text-center ${getWinnerClass(movieB.averageRating, movieA.averageRating)}`}>{movieB.averageRating}/10</TableCell>
+                            <TableCell className="font-medium flex items-center gap-2">Score d'évaluation</TableCell>
+                            <TableCell className="text-center">
+                                <ScoreCircle score={movieA.averageRating} size="sm" />
+                            </TableCell>
+                            <TableCell className="text-center">
+                                <ScoreCircle score={movieB.averageRating} size="sm" />
+                            </TableCell>
                         </TableRow>
 
                          <TableRow className={getRowClass(movieA.popularity, movieB.popularity)}>

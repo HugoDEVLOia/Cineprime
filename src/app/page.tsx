@@ -15,12 +15,13 @@ import {
 import { useMediaLists } from '@/hooks/use-media-lists';
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { ServerCrash, Star, CalendarDays, Clapperboard, Flame, Tv, Film, Eye, Ghost, Laugh, Rocket, PencilRuler, HeartPulse, Bomb, ShieldQuestion, ChevronLeft, ChevronRight, Heart, Coffee, Compass, Sparkles, X } from 'lucide-react';
+import { ServerCrash, CalendarDays, Clapperboard, Flame, Tv, Film, Eye, Ghost, Laugh, Rocket, PencilRuler, HeartPulse, Bomb, ShieldQuestion, ChevronLeft, ChevronRight, Heart, Coffee, Compass, Sparkles, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import MediaCarousel from '@/components/media-carousel';
 import { cn } from '@/lib/utils';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import ScoreCircle from '@/components/score-circle';
 
 export default function HomePage() {
   const [heroCarouselItems, setHeroCarouselItems] = useState<Media[]>([]);
@@ -243,8 +244,8 @@ export default function HomePage() {
                   </h1>
                   <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-4 gap-y-2 text-white/90 text-sm md:text-base mt-3 mb-5">
                     <div className="flex items-center">
-                      <Star className="w-4 h-4 mr-1.5 text-yellow-400 fill-yellow-400" />
-                      <span className="font-bold">{currentHeroItem.averageRating}</span>
+                      <ScoreCircle score={currentHeroItem.averageRating} size="sm" className="mr-2" />
+                      <span className="font-bold">Score d'évaluation</span>
                     </div>
                     {currentHeroItem.releaseDate && (
                       <div className="flex items-center">
