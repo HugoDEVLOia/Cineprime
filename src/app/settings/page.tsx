@@ -59,17 +59,11 @@ export default function SettingsPage() {
       const jsonString = JSON.stringify(dataToExport, null, 2);
       const date = new Date().toISOString().split('T')[0];
       const fileName = `cineprime_sauvegarde_${username || 'backup'}_${date}.json`;
-      const file = new File([jsonString], fileName, { type: 'application/json' });
-
-      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({
-          files: [file],
-          title: 'Ma sauvegarde CinéPrime',
-          text: `Voici ma liste de films et séries sur CinéPrime (${username}).`,
-        });
-        toast({ title: "Partage réussi", description: "Votre fichier de sauvegarde a été partagé." });
-      } else {
-        const url = URL.createObjectURL(file);
+      
+      // Fallback function for direct download
+      const triggerDownload = () => {
+        const blob = new Blob([jsonString], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
         a.download = fileName;
@@ -78,12 +72,40 @@ export default function SettingsPage() {
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
         toast({ title: "Sauvegarde téléchargée", description: "Le fichier JSON a été enregistré sur votre appareil." });
+      };
+
+      // Try native sharing if supported and enabled
+      if (navigator.share && navigator.canShare) {
+        const file = new File([jsonString], fileName, { type: 'application/json' });
+        
+        if (navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({
+              files: [file],
+              title: 'Ma sauvegarde CinéPrime',
+              text: `Voici ma liste de films et séries sur CinéPrime (${username}).`,
+            });
+            toast({ title: "Partage réussi", description: "Votre fichier de sauvegarde a été partagé." });
+            setIsExporting(false);
+            return;
+          } catch (shareError: any) {
+            // User cancelled the share, we just stop here
+            if (shareError.name === 'AbortError') {
+              setIsExporting(false);
+              return;
+            }
+            // For other errors (common on some Android versions), we fallback to download
+            console.warn("Le partage natif a échoué, basculement vers le téléchargement:", shareError);
+          }
+        }
       }
+
+      // Default fallback
+      triggerDownload();
+      
     } catch (error) {
       console.error("Export error:", error);
-      if (error instanceof Error && error.name !== 'AbortError') {
-        toast({ title: "Erreur d'exportation", description: "Une erreur est survenue lors de la création de la sauvegarde.", variant: "destructive" });
-      }
+      toast({ title: "Erreur d'exportation", description: "Une erreur est survenue lors de la création de la sauvegarde.", variant: "destructive" });
     } finally {
       setIsExporting(false);
     }
