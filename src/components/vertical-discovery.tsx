@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { getPopularMedia, type Media, getMediaDetails } from '@/services/tmdb';
 import { Button } from '@/components/ui/button';
-import { Loader2, Heart, Check, CalendarDays, ArrowLeft, Link2, Star, PlaySquare, AlertTriangle } from 'lucide-react';
+import { Loader2, Heart, Check, CalendarDays, ArrowLeft, Link2, Star, PlaySquare, AlertTriangle, Construction } from 'lucide-react';
 import { useMediaLists } from '@/hooks/use-media-lists';
 import { useToast } from '@/hooks/use-toast';
 import { AnimatePresence, motion, useAnimation } from 'framer-motion';
@@ -21,6 +21,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Badge } from '@/components/ui/badge';
 
 function DirectLinksPanel({ media }: { media: Media }) {
     const isAnime = media.keywords?.some(k => k.id === 210024);
@@ -40,38 +41,13 @@ function DirectLinksPanel({ media }: { media: Media }) {
                     </a>
                 </Button>
 
-                <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                        <Button size="lg" className="w-full h-14 shadow-lg hover:scale-[1.02] transition-transform border-0" style={{ backgroundColor: '#000000' }}>
-                            <div className="flex items-center justify-center gap-2 text-white font-bold">
-                                Lecteur Frembed
-                            </div>
-                        </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent className="sm:max-w-md">
-                        <AlertDialogHeader>
-                            <AlertDialogTitle className="flex items-center gap-2">
-                                <AlertTriangle className="h-5 w-5 text-yellow-500" /> Avertissement
-                            </AlertDialogTitle>
-                            <AlertDialogDescription asChild>
-                                <div className="space-y-3 pt-2 text-left">
-                                    <p className="font-semibold text-foreground">Vous allez accéder à un lecteur externe.</p>
-                                    <ul className="list-disc pl-5 space-y-1.5 text-sm text-muted-foreground">
-                                        <li><strong>Ne cliquez sur aucune popup</strong> ou publicité.</li>
-                                        <li>Fermez immédiatement toute fenêtre suspecte.</li>
-                                        <li>CinéPrime <strong>n'héberge aucun contenu</strong> et décline toute responsabilité.</li>
-                                    </ul>
-                                </div>
-                            </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                            <AlertDialogCancel>Annuler</AlertDialogCancel>
-                            <AlertDialogAction asChild>
-                                <a href={frembedUrl} target="_blank" rel="noopener noreferrer">Ouvrir le lecteur</a>
-                            </AlertDialogAction>
-                        </AlertDialogFooter>
-                    </AlertDialogContent>
-                </AlertDialog>
+                <Button size="lg" disabled className="w-full h-14 shadow-md opacity-70 cursor-not-allowed bg-muted" variant="outline">
+                    <div className="flex items-center justify-center gap-2 font-bold">
+                        <Image src="/assets/mascotte/mascotte.svg" alt="Popito" width={20} height={20} />
+                        Lecteur CinéPrime
+                        <Badge variant="secondary" className="ml-1 text-[9px]">En construction</Badge>
+                    </div>
+                </Button>
                 
                 <div className="flex flex-col gap-2 pt-4 mt-2 border-t border-border">
                     <Button asChild className="h-11 shadow-sm hover:brightness-110" style={{ backgroundColor: '#E50914', color: '#F5F5F1' }}>
@@ -85,6 +61,39 @@ function DirectLinksPanel({ media }: { media: Media }) {
                             PurStream
                         </a>
                     </Button>
+
+                    <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                            <Button size="lg" className="h-11 shadow-lg hover:scale-[1.02] transition-transform border-0" style={{ backgroundColor: '#000000' }}>
+                                <div className="flex items-center justify-center gap-2 text-white font-bold text-sm">
+                                    Lecteur Frembed
+                                </div>
+                            </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent className="sm:max-w-md">
+                            <AlertDialogHeader>
+                                <AlertDialogTitle className="flex items-center gap-2">
+                                    <AlertTriangle className="h-5 w-5 text-yellow-500" /> Avertissement
+                                </AlertDialogTitle>
+                                <AlertDialogDescription asChild>
+                                    <div className="space-y-3 pt-2 text-left">
+                                        <p className="font-semibold text-foreground">Vous allez accéder à un lecteur externe.</p>
+                                        <ul className="list-disc pl-5 space-y-1.5 text-sm text-muted-foreground">
+                                            <li><strong>Ne cliquez sur aucune popup</strong> ou publicité.</li>
+                                            <li>Fermez immédiatement toute fenêtre suspecte.</li>
+                                            <li>CinéPrime <strong>n'héberge aucun contenu</strong> et décline toute responsabilité.</li>
+                                        </ul>
+                                    </div>
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>Annuler</AlertDialogCancel>
+                                <AlertDialogAction asChild>
+                                    <a href={frembedUrl} target="_blank" rel="noopener noreferrer">Ouvrir le lecteur</a>
+                                </AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
 
                     {isAnime && (
                         <Button asChild variant="secondary" className="h-11 shadow-sm">

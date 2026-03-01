@@ -22,7 +22,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Users, User, Tv, CalendarDays, Clock, Eye, CheckCircle, FilmIcon, ServerCrash, Info, ChevronRight, Loader2, PlaySquare, Radio, ExternalLink, Shield, Link2, GitCompare, Search, SearchX, DollarSign, Play, Star, AlertTriangle } from 'lucide-react';
+import { Users, User, Tv, CalendarDays, Clock, Eye, CheckCircle, FilmIcon, ServerCrash, Info, ChevronRight, Loader2, PlaySquare, Radio, ExternalLink, Shield, Link2, GitCompare, Search, SearchX, DollarSign, Play, Star, AlertTriangle, Construction } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import MediaCard from '@/components/media-card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -219,13 +219,13 @@ function WatchLinksDialog({ media, children }: { media: Media, children: React.R
             </a>
           </Button>
 
-          <PlayerWarningWrapper url={frembedUrl}>
-            <Button size="lg" className="w-full h-16 text-lg font-bold shadow-lg hover:scale-[1.02] transition-transform" style={{ backgroundColor: '#000000' }}>
-              <div className="flex items-center justify-center gap-3 text-white">
-                Lecteur Frembed
-              </div>
-            </Button>
-          </PlayerWarningWrapper>
+          <Button size="lg" disabled className="w-full h-16 text-lg font-bold shadow-md opacity-70 cursor-not-allowed bg-muted" variant="outline">
+            <div className="flex items-center justify-center gap-3">
+              <Image src="/assets/mascotte/mascotte.svg" alt="Popito" width={24} height={24} />
+              Lecteur CinéPrime
+              <Badge variant="secondary" className="ml-2 text-[10px]">En construction</Badge>
+            </div>
+          </Button>
           
           <div className="grid grid-cols-1 gap-3">
             <Button asChild size="lg" className="h-14 font-bold text-white shadow-md hover:brightness-110 hover:scale-[1.02] transition-all border-0" style={{ backgroundColor: '#E50914' }}>
@@ -239,6 +239,14 @@ function WatchLinksDialog({ media, children }: { media: Media, children: React.R
                 PurStream
               </a>
             </Button>
+
+            <PlayerWarningWrapper url={frembedUrl}>
+              <Button size="lg" className="h-14 font-bold text-white shadow-md hover:scale-[1.02] transition-all border-0" style={{ backgroundColor: '#000000' }}>
+                <div className="flex items-center justify-center gap-3 text-white">
+                  Lecteur Frembed
+                </div>
+              </Button>
+            </PlayerWarningWrapper>
 
             {isAnime && (
               <Button asChild size="lg" className="h-14 font-bold text-white shadow-md hover:brightness-110 hover:scale-[1.02] transition-all border-0" style={{ backgroundColor: '#5D3FD3' }}>
@@ -761,13 +769,13 @@ export default function MediaDetailsPage() {
                   </a>
                 </Button>
 
-                <PlayerWarningWrapper url={media.mediaType === 'movie' ? `https://frembed.work/api/film.php?id=${media.id}` : `https://frembed.work/api/serie.php?id=${media.id}&sa=1&epi=1`}>
-                  <Button size="lg" className="w-full sm:w-auto h-14 shadow-md hover:scale-[1.02] transition-transform border-0" style={{ backgroundColor: '#000000' }}>
-                    <div className="flex items-center justify-center gap-2 text-white font-bold">
-                      Lecteur Frembed
-                    </div>
-                  </Button>
-                </PlayerWarningWrapper>
+                <Button size="lg" disabled className="w-full sm:w-auto h-14 shadow-md opacity-70 cursor-not-allowed bg-muted" variant="outline">
+                  <div className="flex items-center justify-center gap-2 font-bold">
+                    <Image src="/assets/mascotte/mascotte.svg" alt="Popito" width={20} height={20} />
+                    Lecteur CinéPrime
+                    <Badge variant="secondary" className="ml-1 text-[9px]">En construction</Badge>
+                  </div>
+                </Button>
               </div>
               
               <div className="flex flex-wrap gap-3 pt-4 border-t border-border">
@@ -787,6 +795,14 @@ export default function MediaDetailsPage() {
                           PurStream
                       </a>
                   </Button>
+
+                  <PlayerWarningWrapper url={media.mediaType === 'movie' ? `https://frembed.work/api/film.php?id=${media.id}` : `https://frembed.work/api/serie.php?id=${media.id}&sa=1&epi=1`}>
+                    <Button size="lg" className="font-bold text-white shadow-md hover:scale-[1.02] transition-transform border-0" style={{ backgroundColor: '#000000' }}>
+                      <div className="flex items-center justify-center gap-2 text-white">
+                        Lecteur Frembed
+                      </div>
+                    </Button>
+                  </PlayerWarningWrapper>
 
                   {media.keywords?.some(k => k.id === 210024) && (
                     <Button asChild className="font-bold text-white shadow-md hover:brightness-110 hover:scale-[1.02] transition-all border-0" style={{ backgroundColor: '#5D3FD3' }}>
