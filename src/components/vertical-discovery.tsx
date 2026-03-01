@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
@@ -6,12 +5,11 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { getPopularMedia, type Media, getMediaDetails } from '@/services/tmdb';
 import { Button } from '@/components/ui/button';
-import { Loader2, Heart, Check, CalendarDays, ArrowLeft, Link2 } from 'lucide-react';
+import { Loader2, Heart, Check, CalendarDays, ArrowLeft, Link2, Star } from 'lucide-react';
 import { useMediaLists } from '@/hooks/use-media-lists';
 import { useToast } from '@/hooks/use-toast';
 import { AnimatePresence, motion, useAnimation } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import ScoreCircle from './score-circle';
 
 function DirectLinksPanel({ media }: { media: Media }) {
     const isAnime = media.keywords?.some(k => k.id === 210024);
@@ -164,8 +162,9 @@ function DiscoveryItem({ media, isActive }: { media: Media, isActive: boolean })
                <div className="space-y-1">
                    <h1 className="text-2xl font-bold leading-tight drop-shadow-lg">{media.title}</h1>
                    <div className="flex items-center gap-4 text-white/90 text-sm">
-                       <div className="flex items-center gap-1.5">
-                        <ScoreCircle score={media.averageRating} size="sm" />
+                       <div className="flex items-center gap-1.5 bg-black/40 backdrop-blur-md px-2 py-1 rounded-md">
+                        <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
+                        <span className="font-bold">{media.averageRating.toFixed(1)}</span>
                        </div>
                        {media.releaseDate && (
                        <div className="flex items-center gap-1.5">

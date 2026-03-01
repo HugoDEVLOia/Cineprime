@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
@@ -15,13 +14,12 @@ import {
 import { useMediaLists } from '@/hooks/use-media-lists';
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { ServerCrash, CalendarDays, Clapperboard, Flame, Tv, Film, Eye, Ghost, Laugh, Rocket, PencilRuler, HeartPulse, Bomb, ShieldQuestion, ChevronLeft, ChevronRight, Heart, Coffee, Compass, Sparkles, X } from 'lucide-react';
+import { ServerCrash, CalendarDays, Clapperboard, Flame, Tv, Film, Eye, Ghost, Laugh, Rocket, PencilRuler, HeartPulse, Bomb, ShieldQuestion, ChevronLeft, ChevronRight, Heart, Coffee, Compass, Sparkles, X, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import MediaCarousel from '@/components/media-carousel';
 import { cn } from '@/lib/utils';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import ScoreCircle from '@/components/score-circle';
 
 export default function HomePage() {
   const [heroCarouselItems, setHeroCarouselItems] = useState<Media[]>([]);
@@ -243,9 +241,9 @@ export default function HomePage() {
                     {currentHeroItem.title}
                   </h1>
                   <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-4 gap-y-2 text-white/90 text-sm md:text-base mt-3 mb-5">
-                    <div className="flex items-center">
-                      <ScoreCircle score={currentHeroItem.averageRating} size="sm" className="mr-2" />
-                      <span className="font-bold">Score d'évaluation</span>
+                    <div className="flex items-center bg-black/30 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10">
+                      <Star className="h-5 w-5 text-yellow-400 fill-yellow-400 mr-2" />
+                      <span className="font-bold text-lg">{currentHeroItem.averageRating.toFixed(1)}<span className="text-xs text-white/60 ml-1">/10</span></span>
                     </div>
                     {currentHeroItem.releaseDate && (
                       <div className="flex items-center">
@@ -257,11 +255,13 @@ export default function HomePage() {
                   <p className="text-md md:text-lg text-white/80 leading-relaxed line-clamp-3 mb-6 drop-shadow-md">
                     {currentHeroItem.description}
                   </p>
-                  <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg">
-                    <Link href={`/media/${currentHeroItem.mediaType}/${currentHeroItem.id}`}>
-                      Voir les détails
-                    </Link>
-                  </Button>
+                  <div className="flex flex-wrap gap-4">
+                    <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg px-8">
+                      <Link href={`/media/${currentHeroItem.mediaType}/${currentHeroItem.id}`}>
+                        Voir les détails
+                      </Link>
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>

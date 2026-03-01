@@ -4,10 +4,9 @@ import type { Media } from '@/services/tmdb';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Film, TvIcon, Briefcase, CalendarDays } from 'lucide-react';
+import { Film, TvIcon, Briefcase, CalendarDays, Star } from 'lucide-react';
 import { Badge } from './ui/badge';
 import { Skeleton } from './ui/skeleton';
-import ScoreCircle from './score-circle';
 import { cn } from '@/lib/utils';
 
 interface MediaCardProps {
@@ -66,12 +65,15 @@ export default function MediaCard({ media, imageLoading = 'lazy' }: MediaCardPro
         </Link>
         {getBadge()}
         {media.mediaType !== 'person' && media.averageRating > 0 && (
-          <div className="absolute bottom-0 left-3 translate-y-1/2 z-10">
-            <ScoreCircle score={media.averageRating} size="sm" />
+          <div className="absolute bottom-2 left-2 z-10">
+            <Badge className="bg-black/70 hover:bg-black/80 backdrop-blur-md border-none text-yellow-400 font-bold flex items-center gap-1 px-2 py-1">
+              <Star className="h-3.5 w-3.5 fill-current" />
+              <span>{media.averageRating.toFixed(1)}</span>
+            </Badge>
           </div>
         )}
       </CardHeader>
-      <CardContent className={cn("p-3 flex-grow flex flex-col justify-between", media.mediaType !== 'person' && "pt-6")}>
+      <CardContent className={cn("p-3 flex-grow flex flex-col justify-between", (media.mediaType !== 'person' && media.averageRating > 0) ? "pt-4" : "pt-3")}>
         <div>
           <Link href={linkUrl} className="hover:text-primary transition-colors">
             <CardTitle className="text-md font-bold mb-1.5 line-clamp-2 leading-tight text-foreground group-hover:text-primary">

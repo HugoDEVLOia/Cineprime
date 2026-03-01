@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -23,7 +22,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Users, User, Tv, CalendarDays, Clock, Eye, CheckCircle, FilmIcon, ServerCrash, Info, ChevronRight, Loader2, PlaySquare, Radio, ExternalLink, Shield, Link2, GitCompare, Search, SearchX, DollarSign, Play } from 'lucide-react';
+import { Users, User, Tv, CalendarDays, Clock, Eye, CheckCircle, FilmIcon, ServerCrash, Info, ChevronRight, Loader2, PlaySquare, Radio, ExternalLink, Shield, Link2, GitCompare, Search, SearchX, DollarSign, Play, Star } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import MediaCard from '@/components/media-card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -33,7 +32,6 @@ import { Command, CommandInput } from "@/components/ui/command"
 import { useDebounce } from '@/hooks/use-debounce';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { motion, PanInfo } from 'framer-motion';
-import ScoreCircle from '@/components/score-circle';
 
 interface ProviderCategoryProps {
   title: string;
@@ -506,10 +504,16 @@ export default function MediaDetailsPage() {
             </div>
             <h1 className="text-4xl md:text-5xl font-extrabold text-foreground tracking-tight">{media.title}</h1>
             
-            {/* TMDB Score Section */}
+            {/* Score Section */}
             <div className="flex items-center gap-4 py-4">
-              <ScoreCircle score={media.averageRating} size="lg" />
-              <div className="text-sm font-bold leading-tight">
+              <div className="flex items-center gap-2 bg-black/5 dark:bg-white/5 rounded-full px-4 py-2 border border-border">
+                <Star className="h-8 w-8 text-yellow-400 fill-yellow-400" />
+                <div className="flex flex-col">
+                  <span className="text-2xl font-black text-foreground leading-none">{media.averageRating.toFixed(1)}<span className="text-sm text-muted-foreground ml-1">/10</span></span>
+                  <span className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground">Score TMDB</span>
+                </div>
+              </div>
+              <div className="text-sm font-bold leading-tight text-muted-foreground">
                 Score<br />d'évaluation
               </div>
             </div>
@@ -792,7 +796,8 @@ export default function MediaDetailsPage() {
                         <div className="flex justify-between items-start gap-2">
                           <h4 className="font-semibold text-foreground flex-grow">{episode.episodeNumber}. {episode.title}</h4>
                           <div className="flex items-center text-xs text-muted-foreground whitespace-nowrap gap-1.5">
-                            <ScoreCircle score={episode.rating} size="sm" />
+                            <Star className="h-3.5 w-3.5 text-yellow-400 fill-yellow-400" />
+                            <span>{episode.rating.toFixed(1)}</span>
                           </div>
                         </div>
                         {episode.airDate && <p className="text-xs text-muted-foreground mt-0.5">Diffusé le : {new Date(episode.airDate).toLocaleDateString('fr-FR')}</p>}
