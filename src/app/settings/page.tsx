@@ -1,14 +1,13 @@
 'use client';
 
-import type { ChangeEvent } from 'react';
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { useMediaLists, type Media } from '@/hooks/use-media-lists';
+import { useMediaLists } from '@/hooks/use-media-lists';
 import { useUser } from '@/contexts/user-provider';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Share2, FileDown, AlertTriangle, Loader2, SettingsIcon, SunMoon, Heart, Coffee, LogOut, User as UserIcon, Save } from 'lucide-react';
+import { Share2, AlertTriangle, Loader2, Info, Heart, Coffee, LogOut, User as UserIcon, Save, Github, Globe } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import {
@@ -31,14 +30,16 @@ export default function SettingsPage() {
   const { username, avatar, setUsernameAndAvatar, clearUserData, isLoaded: userIsLoaded } = useUser();
   const { toast } = useToast();
 
+  const [mounted, setMounted] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   
   // State for profile editing
-  const [newUsername, setNewUsername] = useState(username || '');
-  const [newAvatar, setNewAvatar] = useState(avatar || '');
+  const [newUsername, setNewUsername] = useState('');
+  const [newAvatar, setNewAvatar] = useState('');
   const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     if (userIsLoaded) {
       setNewUsername(username || '');
       setNewAvatar(avatar || '');
@@ -60,7 +61,6 @@ export default function SettingsPage() {
       const fileName = `cineprime_sauvegarde_${username || 'backup'}_${date}.json`;
       const file = new File([jsonString], fileName, { type: 'application/json' });
 
-      // Check if Web Share API is available and can share files
       if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
         await navigator.share({
           files: [file],
@@ -69,7 +69,6 @@ export default function SettingsPage() {
         });
         toast({ title: "Partage réussi", description: "Votre fichier de sauvegarde a été partagé." });
       } else {
-        // Fallback to traditional download
         const url = URL.createObjectURL(file);
         const a = document.createElement('a');
         a.href = url;
@@ -82,7 +81,6 @@ export default function SettingsPage() {
       }
     } catch (error) {
       console.error("Export error:", error);
-      // Don't show toast if user cancelled share
       if (error instanceof Error && error.name !== 'AbortError') {
         toast({ title: "Erreur d'exportation", description: "Une erreur est survenue lors de la création de la sauvegarde.", variant: "destructive" });
       }
@@ -112,13 +110,15 @@ export default function SettingsPage() {
     setIsEditing(false);
   }
 
+  if (!mounted) return null;
+
   const encodedAvatar = encodeAvatarPath(newAvatar);
 
   return (
     <div className="space-y-10">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
         <h1 className="text-3xl md:text-4xl font-extrabold text-foreground tracking-tight flex items-center gap-3">
-            <UserIcon className="h-8 w-8 text-primary"/> Profil et Paramètres
+            <UserIcon className="h-8 w-8 text-primary"/> Mon Compte
         </h1>
       </div>
 
@@ -127,8 +127,8 @@ export default function SettingsPage() {
           <TabsTrigger value="profile">
             <UserIcon className="mr-2 h-4 w-4"/> Profil
           </TabsTrigger>
-          <TabsTrigger value="settings">
-            <SettingsIcon className="mr-2 h-4 w-4"/> Paramètres
+          <TabsTrigger value="about">
+            <Info className="mr-2 h-4 w-4"/> À propos
           </TabsTrigger>
         </TabsList>
         
@@ -147,7 +147,7 @@ export default function SettingsPage() {
                                 alt={newUsername || 'Avatar'}
                                 fill
                                 className="rounded-full object-cover border-4 border-primary"
-                                key={newAvatar} // Force re-render on avatar change
+                                key={newAvatar}
                                 unoptimized
                             />
                            )}
@@ -219,7 +219,7 @@ export default function SettingsPage() {
                       <LogOut className="h-6 w-6"/> Zone de Danger
                     </CardTitle>
                     <CardDescription>
-                      Cette action est irréversible. Elle supprimera toutes vos données locales (profil et listes) de ce navigateur.
+                      Cette action est irréversible. Elle supprimera toutes vos données locales de ce navigateur.
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="flex justify-center pb-8">
@@ -233,7 +233,7 @@ export default function SettingsPage() {
                             <AlertDialogHeader>
                                 <AlertDialogTitle>Êtes-vous absolument sûr ?</AlertDialogTitle>
                                 <AlertDialogDescription>
-                                    Cette action supprimera votre profil et toutes vos listes de ce navigateur. Assurez-vous d'avoir exporté votre fichier de sauvegarde si vous souhaitez les récupérer plus tard.
+                                    Cette action supprimera votre profil et toutes vos listes de ce navigateur. Assurez-vous d'avoir exporté votre fichier de sauvegarde.
                                 </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
@@ -246,28 +246,71 @@ export default function SettingsPage() {
             </Card>
         </TabsContent>
         
-        <TabsContent value="settings" className="mt-6 space-y-8 max-w-2xl mx-auto">
-           <Card className="shadow-md rounded-xl">
-            <CardHeader>
-              <CardTitle className="text-xl font-semibold flex items-center gap-2 text-foreground">
-                <Heart className="h-6 w-6 text-primary"/>Soutenir le projet
-              </CardTitle>
-              <CardDescription>
-                CinéPrime est un projet personnel développé avec passion. Si vous appréciez l'application, vous pouvez soutenir son développement et aider à couvrir les frais avec un don. Chaque contribution, même la plus modeste, est grandement appréciée !
-              </CardDescription>
+        <TabsContent value="about" className="mt-8 space-y-8 max-w-2xl mx-auto">
+           <Card className="shadow-lg rounded-xl overflow-hidden">
+            <CardHeader className="text-center bg-muted/30 pb-8">
+              <div className="mx-auto w-20 h-20 mb-4">
+                <Image src="/assets/icon/favicon.svg" alt="CinéPrime Logo" width={80} height={80} />
+              </div>
+              <CardTitle className="text-3xl font-bold">CinéPrime</CardTitle>
+              <CardDescription>Version 1.2.0 • Créé avec passion</CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="flex flex-col sm:flex-row gap-3">
-                <Button asChild size="lg" className="bg-pink-600 hover:bg-pink-700 text-white w-full sm:w-auto">
-                  <a href="https://paypal.me/hugodevlo" target="_blank" rel="noopener noreferrer">
-                    <Heart className="mr-2 h-5 w-5" /> Faire un don PayPal
-                  </a>
-                </Button>
-                 <Button asChild size="lg" variant="secondary" className="w-full sm:w-auto bg-yellow-400 hover:bg-yellow-500 text-black">
-                    <a href="https://ko-fi.com/hugodevlo" target="_blank" rel="noopener noreferrer">
-                        <Coffee className="mr-2 h-5 w-5" /> Soutenir sur Ko-fi
+            <CardContent className="pt-8 space-y-6">
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">L'Application</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  CinéPrime est votre compagnon cinématographique ultime. Explorez des milliers de titres, gérez vos listes personnelles et suivez vos statistiques de visionnage, le tout dans une interface privée et sans publicité.
+                </p>
+              </div>
+
+              <div className="pt-6 border-t border-border">
+                <h3 className="text-lg font-semibold mb-4">Développé par</h3>
+                <div className="flex items-center justify-between">
+                  <span className="font-medium text-foreground">HugoDEVLO</span>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="icon" asChild>
+                      <a href="https://github.com/HugoDEVLO" target="_blank" rel="noopener noreferrer"><Github className="h-4 w-4" /></a>
+                    </Button>
+                    <Button variant="outline" size="icon" asChild>
+                      <a href="https://hugodevlo.com" target="_blank" rel="noopener noreferrer"><Globe className="h-4 w-4" /></a>
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-6 border-t border-border">
+                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                  <Heart className="h-5 w-5 text-primary" /> Soutenir le projet
+                </h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  CinéPrime est gratuit et respectueux de votre vie privée. Si l'application vous plaît, vous pouvez m'aider à couvrir les frais d'hébergement.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <Button asChild className="bg-pink-600 hover:bg-pink-700 text-white w-full">
+                    <a href="https://paypal.me/hugodevlo" target="_blank" rel="noopener noreferrer">
+                      <Heart className="mr-2 h-4 w-4" /> Faire un don
                     </a>
-                </Button>
+                  </Button>
+                  <Button asChild variant="secondary" className="bg-yellow-400 hover:bg-yellow-500 text-black w-full">
+                    <a href="https://ko-fi.com/hugodevlo" target="_blank" rel="noopener noreferrer">
+                      <Coffee className="mr-2 h-4 w-4" /> Offrir un café
+                    </a>
+                  </Button>
+                </div>
+              </div>
+
+              <div className="pt-6 border-t border-border text-center">
+                <div className="flex flex-col items-center gap-2">
+                  <Image 
+                    src="https://www.themoviedb.org/assets/2/v4/logos/v2/blue_square_2-d537fb228cf3ded904ef09b136fe3fec72548ebc1fea3fbbd1ad9e36364db38b.svg" 
+                    alt="TMDB Logo" 
+                    width={60} 
+                    height={40}
+                  />
+                  <p className="text-[10px] text-muted-foreground max-w-xs">
+                    Ce produit utilise l'API TMDB mais n'est pas approuvé ou certifié par TMDB.
+                  </p>
+                </div>
               </div>
             </CardContent>
           </Card>
