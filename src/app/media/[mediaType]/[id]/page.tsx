@@ -506,15 +506,12 @@ export default function MediaDetailsPage() {
             
             {/* Score Section */}
             <div className="flex items-center gap-4 py-4">
-              <div className="flex items-center gap-2 bg-black/5 dark:bg-white/5 rounded-full px-4 py-2 border border-border">
-                <Star className="h-8 w-8 text-yellow-400 fill-yellow-400" />
-                <div className="flex flex-col">
-                  <span className="text-2xl font-black text-foreground leading-none">{media.averageRating.toFixed(1)}<span className="text-sm text-muted-foreground ml-1">/10</span></span>
-                  <span className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground">Score TMDB</span>
-                </div>
-              </div>
-              <div className="text-sm font-bold leading-tight text-muted-foreground">
-                Score<br />d'évaluation
+              <div className="flex items-center gap-3 bg-black/5 dark:bg-white/5 rounded-full px-5 py-2.5 border border-border shadow-sm">
+                <Star className="h-7 w-7 text-yellow-400 fill-yellow-400" />
+                <span className="text-2xl font-black text-foreground tracking-tight">
+                  {media.averageRating.toFixed(1)}
+                  <span className="text-sm text-muted-foreground font-medium ml-1">/10</span>
+                </span>
               </div>
             </div>
 
