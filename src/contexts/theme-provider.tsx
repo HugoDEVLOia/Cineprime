@@ -4,7 +4,7 @@
 import type { Dispatch, SetStateAction} from 'react';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
-type Theme = 'light' | 'dark' | 'system';
+type Theme = 'dark' | 'system';
 
 interface ThemeProviderProps {
   children: React.ReactNode;
@@ -36,6 +36,8 @@ export function ThemeProvider({
     }
     try {
       const storedTheme = window.localStorage.getItem(storageKey) as Theme | null;
+      // Handle legacy 'light' users by switching them to 'dark'
+      if (storedTheme === ('light' as any)) return 'dark';
       return storedTheme || defaultTheme;
     } catch (e) {
       return defaultTheme;
