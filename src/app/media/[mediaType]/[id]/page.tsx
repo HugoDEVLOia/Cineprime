@@ -18,6 +18,7 @@ import {
   type CountryProviderDetails,
   type ProviderDetail,
 } from '@/services/tmdb';
+import { getRTScores } from '@/services/rotten-tomatoes'; // Import de la nouvelle API
 import { useMediaLists } from '@/hooks/use-media-lists';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -92,7 +93,9 @@ const WatchProviderDisplay: React.FC<WatchProviderSectionProps> = ({ providers, 
     return (
        <Card className="shadow-md rounded-xl p-6 bg-card">
         <div className="flex flex-col items-center text-center text-muted-foreground">
-          <Info className="w-12 h-12 mb-4" />
+          <div className="w-16 h-16 mb-4 flex items-center justify-center rounded-full bg-muted">
+            <Info className="w-8 h-8 text-muted-foreground" />
+          </div>
           <p className="text-lg font-medium">Aucune information de diffusion trouvée en France pour {mediaTitle}.</p>
         </div>
       </Card>
@@ -106,7 +109,9 @@ const WatchProviderDisplay: React.FC<WatchProviderSectionProps> = ({ providers, 
     return (
       <Card className="shadow-md rounded-xl p-6 bg-card">
         <div className="flex flex-col items-center text-center text-muted-foreground">
-          <Info className="w-12 h-12 mb-4" />
+          <div className="w-16 h-16 mb-4 flex items-center justify-center rounded-full bg-muted">
+            <Info className="w-8 h-8 text-muted-foreground" />
+          </div>
           <p className="text-lg font-medium">Aucune information de diffusion trouvée en France pour {mediaTitle}.</p>
           {link && (
              <Button asChild variant="link" className="mt-4">
@@ -171,20 +176,20 @@ function WatchLinksDialog({ media, children }: { media: Media, children: React.R
           </Button>
           
           <div className="grid grid-cols-1 gap-3">
-            <Button asChild size="lg" className="h-14 font-bold text-white shadow-md hover:brightness-110 hover:scale-[1.02] transition-all" style={{ backgroundColor: '#E50914' }}>
+            <Button asChild size="lg" className="h-14 font-bold text-white shadow-md hover:brightness-110 hover:scale-[1.02] transition-all border-0" style={{ backgroundColor: '#E50914' }}>
               <a href={`https://movix.blog/search?q=${encodeURIComponent(media.title)}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2">
                 Movix
               </a>
             </Button>
             
-            <Button asChild size="lg" className="h-14 font-bold text-white shadow-md hover:brightness-125 hover:scale-[1.02] transition-all" style={{ backgroundColor: '#212121' }}>
+            <Button asChild size="lg" className="h-14 font-bold text-white shadow-md hover:brightness-125 hover:scale-[1.02] transition-all border-0" style={{ backgroundColor: '#212121' }}>
               <a href="https://purstream.co/" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2">
                 PurStream
               </a>
             </Button>
 
             {isAnime && (
-              <Button asChild size="lg" className="h-14 font-bold text-white shadow-md hover:brightness-110 hover:scale-[1.02] transition-all" style={{ backgroundColor: '#5D3FD3' }}>
+              <Button asChild size="lg" className="h-14 font-bold text-white shadow-md hover:brightness-110 hover:scale-[1.02] transition-all border-0" style={{ backgroundColor: '#5D3FD3' }}>
                 <a href={animeSamaUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2">
                   <Image src="https://cdn.statically.io/gh/Anime-Sama/IMG/img/autres/logo_icon.png" alt="Anime-Sama Logo" width={20} height={20} className="rounded-sm"/>
                   Anime-Sama
@@ -301,6 +306,7 @@ export default function MediaDetailsPage() {
   const cameFromDiscover = searchParams.get('from') === 'discover';
 
   const [media, setMedia] = useState<Media | null>(null);
+  const [realRTScores, setRealRTScores] = useState<{ tomatometer: number, audienceScore: number } | null>(null);
   const [actors, setActors] = useState<Actor[]>([]);
   const [director, setDirector] = useState<Director | null>(null);
   const [seasons, setSeasons] = useState<Season[]>([]);
@@ -349,6 +355,13 @@ export default function MediaDetailsPage() {
         if (mediaType === 'tv' && mediaDetails.id) {
           const seriesSeasons = await getSeriesSeasons(mediaDetails.id.toString());
           setSeasons(seriesSeasons);
+        }
+
+        // Récupération des vrais scores Rotten Tomatoes
+        if (mediaDetails.title && mediaType === 'movie') {
+          getRTScores(mediaDetails.title).then(scores => {
+            if (scores) setRealRTScores(scores);
+          });
         }
       } catch (err) {
         console.error('Erreur lors de la récupération des détails du média:', err);
@@ -431,6 +444,10 @@ export default function MediaDetailsPage() {
   const isWatched = isInList(media.id, 'watched');
   const trailerToDisplay = findBestTrailer(media.videos);
 
+  // Priorité aux vrais scores si disponibles
+  const finalTomatometer = realRTScores ? realRTScores.tomatometer : media.tomatometer;
+  const finalAudienceScore = realRTScores ? realRTScores.audienceScore : media.audienceScore;
+
 
   const handleToggleList = async (listType: 'toWatch' | 'watched') => {
     if (!media) return;
@@ -505,16 +522,16 @@ export default function MediaDetailsPage() {
             {/* Rotten Tomatoes Section */}
             <div className="flex flex-wrap items-center gap-8 py-2">
               <div className="flex items-center gap-3">
-                <TomatoIcon score={media.tomatometer} className="w-10 h-10" />
+                <TomatoIcon score={finalTomatometer} className="w-10 h-10" />
                 <div>
-                  <div className="text-2xl font-black leading-none">{media.tomatometer}%</div>
+                  <div className="text-2xl font-black leading-none">{finalTomatometer}%</div>
                   <div className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Tomatometer</div>
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <PopcornIcon score={media.audienceScore} className="w-10 h-10" />
+                <PopcornIcon score={finalAudienceScore} className="w-10 h-10" />
                 <div>
-                  <div className="text-2xl font-black leading-none">{media.audienceScore}%</div>
+                  <div className="text-2xl font-black leading-none">{finalAudienceScore}%</div>
                   <div className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Public</div>
                 </div>
               </div>
@@ -588,7 +605,7 @@ export default function MediaDetailsPage() {
             <WatchLinksDialog media={media}>
               <Button 
                 size="lg"
-                className="gap-2 w-full sm:w-auto py-4 px-10 text-lg font-bold bg-primary hover:bg-primary/90 shadow-xl shadow-primary/20 hover:scale-105 transition-all group"
+                className="gap-2 w-full sm:w-auto py-4 px-10 text-lg font-bold bg-primary hover:bg-primary/90 shadow-xl shadow-primary/20 hover:scale-105 transition-all group border-0"
               >
                 <Play className="h-6 w-6 fill-current group-hover:animate-pulse" /> Regarder maintenant
               </Button>
@@ -698,7 +715,7 @@ export default function MediaDetailsPage() {
         </h2>
         <Card className="shadow-lg rounded-xl p-4 md:p-6 bg-card">
            <CardContent className="p-0 space-y-4">
-              <Button asChild size="lg" className="w-full sm:w-auto h-14 shadow-md hover:scale-[1.02] transition-transform" style={{ backgroundColor: '#1E1E1E' }}>
+              <Button asChild size="lg" className="w-full sm:w-auto h-14 shadow-md hover:scale-[1.02] transition-transform border-0" style={{ backgroundColor: '#1E1E1E' }}>
                 <a
                   href={`https://cinepulse.lol/sheet/${media.mediaType}-${media.id}`}
                   target="_blank"
@@ -711,13 +728,13 @@ export default function MediaDetailsPage() {
               </Button>
               
               <div className="flex flex-wrap gap-3 pt-4 border-t border-border">
-                  <Button asChild className="font-bold text-white shadow-md hover:brightness-110 hover:scale-[1.02] transition-all" style={{ backgroundColor: '#E50914' }}>
+                  <Button asChild className="font-bold text-white shadow-md hover:brightness-110 hover:scale-[1.02] transition-all border-0" style={{ backgroundColor: '#E50914' }}>
                       <a href={`https://movix.blog/search?q=${encodeURIComponent(media.title)}`} target="_blank" rel="noopener noreferrer" className="flex items-center">
                           Movix
                       </a>
                   </Button>
                   
-                  <Button asChild className="font-bold text-white shadow-md hover:brightness-125 hover:scale-[1.02] transition-all" style={{ backgroundColor: '#212121' }}>
+                  <Button asChild className="font-bold text-white shadow-md hover:brightness-125 hover:scale-[1.02] transition-all border-0" style={{ backgroundColor: '#212121' }}>
                       <a
                           href={`https://purstream.co/`}
                           target="_blank"
@@ -729,7 +746,7 @@ export default function MediaDetailsPage() {
                   </Button>
 
                   {media.keywords?.some(k => k.id === 210024) && (
-                    <Button asChild className="font-bold text-white shadow-md hover:brightness-110 hover:scale-[1.02] transition-all" style={{ backgroundColor: '#5D3FD3' }}>
+                    <Button asChild className="font-bold text-white shadow-md hover:brightness-110 hover:scale-[1.02] transition-all border-0" style={{ backgroundColor: '#5D3FD3' }}>
                       <a 
                         href={`https://anime-sama.si/catalogue/${media.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')}/`}
                         target="_blank"
@@ -810,7 +827,9 @@ export default function MediaDetailsPage() {
                   </ul>
                   ) : (
                     <div className="flex flex-col items-center justify-center text-center p-6 border border-dashed border-border rounded-lg bg-muted/30">
-                        <Info className="w-10 h-10 text-muted-foreground mb-3"/>
+                        <div className="w-16 h-16 mb-4 flex items-center justify-center rounded-full bg-muted">
+                            <Info className="w-8 h-8 text-muted-foreground" />
+                        </div>
                         <p className="text-md font-medium text-muted-foreground">Informations sur les épisodes non encore disponibles.</p>
                         <p className="text-sm text-muted-foreground">Revenez bientôt pour les détails.</p>
                     </div>
@@ -849,7 +868,7 @@ function MediaDetailsSkeleton({ mediaType }: { mediaType: 'movie' | 'tv' }) {
         </div>
         <div className="md:col-span-8 xl:col-span-9 space-y-6">
           <Skeleton className="h-8 w-28 rounded-md" /> {/* Badge */}
-          <Skeleton className="h-12 w-4/5 rounded-lg" /> {/* Titre */}
+          <Skeleton className="h-12 w-4/5 rounded-lg" /> {/* Nom */}
           <div className="flex gap-8 py-2">
             <Skeleton className="h-12 w-24 rounded-md" />
             <Skeleton className="h-12 w-24 rounded-md" />
