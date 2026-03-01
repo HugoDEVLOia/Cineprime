@@ -33,11 +33,17 @@ function DirectLinksPanel({ media }: { media: Media }) {
         <div className="w-full h-full bg-card/90 backdrop-blur-md p-6 flex flex-col justify-center items-center text-card-foreground">
             <h3 className="text-xl font-bold mb-6 flex items-center gap-2"><Link2 className="text-primary" /> Liens Directs</h3>
             <div className="flex flex-col gap-3 w-full max-w-xs text-sm">
+                <Button asChild size="lg" className="w-full h-14 shadow-lg hover:scale-[1.02] transition-transform border-0" style={{ backgroundColor: '#1E1E1E' }}>
+                    <a href={`https://cinepulse.lol/sheet/${media.mediaType}-${media.id}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 text-[#FF4545] font-bold">
+                        <Image src="https://cinepulse.lol/favicons/favicon.svg" alt="Cinepulse Logo" width={20} height={20}/>
+                        Cinepulse
+                    </a>
+                </Button>
+
                 <AlertDialog>
                     <AlertDialogTrigger asChild>
                         <Button size="lg" className="w-full h-14 shadow-lg hover:scale-[1.02] transition-transform border-0" style={{ backgroundColor: '#000000' }}>
                             <div className="flex items-center justify-center gap-2 text-white font-bold">
-                                <Image src="/assets/mascotte/mascotte.svg" alt="Popito" width={24} height={24} />
                                 Lecteur Frembed
                             </div>
                         </Button>
@@ -66,13 +72,6 @@ function DirectLinksPanel({ media }: { media: Media }) {
                         </AlertDialogFooter>
                     </AlertDialogContent>
                 </AlertDialog>
-
-                <Button asChild size="lg" className="w-full h-14 shadow-lg hover:scale-[1.02] transition-transform border-0" style={{ backgroundColor: '#1E1E1E' }}>
-                    <a href={`https://cinepulse.lol/sheet/${media.mediaType}-${media.id}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 text-[#FF4545] font-bold">
-                        <Image src="https://cinepulse.lol/favicons/favicon.svg" alt="Cinepulse Logo" width={20} height={20}/>
-                        Cinepulse
-                    </a>
-                </Button>
                 
                 <div className="flex flex-col gap-2 pt-4 mt-2 border-t border-border">
                     <Button asChild className="h-11 shadow-sm hover:brightness-110" style={{ backgroundColor: '#E50914', color: '#F5F5F1' }}>

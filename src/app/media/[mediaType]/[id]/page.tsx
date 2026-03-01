@@ -212,21 +212,20 @@ function WatchLinksDialog({ media, children }: { media: Media, children: React.R
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-4 py-4">
-          <PlayerWarningWrapper url={frembedUrl}>
-            <Button size="lg" className="w-full h-16 text-lg font-bold shadow-lg hover:scale-[1.02] transition-transform" style={{ backgroundColor: '#000000' }}>
-              <div className="flex items-center justify-center gap-3 text-white">
-                <Image src="/assets/mascotte/mascotte.svg" alt="Popito" width={32} height={32} />
-                Lecteur Frembed
-              </div>
-            </Button>
-          </PlayerWarningWrapper>
-
           <Button asChild size="lg" className="w-full h-16 text-lg font-bold shadow-lg hover:scale-[1.02] transition-transform" style={{ backgroundColor: '#1E1E1E' }}>
             <a href={directWatchUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-3 text-[#FF4545]">
               <Image src="https://cinepulse.lol/favicons/favicon.svg" alt="Cinepulse Logo" width={24} height={24}/>
               Cinepulse (Recommandé)
             </a>
           </Button>
+
+          <PlayerWarningWrapper url={frembedUrl}>
+            <Button size="lg" className="w-full h-16 text-lg font-bold shadow-lg hover:scale-[1.02] transition-transform" style={{ backgroundColor: '#000000' }}>
+              <div className="flex items-center justify-center gap-3 text-white">
+                Lecteur Frembed
+              </div>
+            </Button>
+          </PlayerWarningWrapper>
           
           <div className="grid grid-cols-1 gap-3">
             <Button asChild size="lg" className="h-14 font-bold text-white shadow-md hover:brightness-110 hover:scale-[1.02] transition-all border-0" style={{ backgroundColor: '#E50914' }}>
@@ -750,15 +749,6 @@ export default function MediaDetailsPage() {
         <Card className="shadow-lg rounded-xl p-4 md:p-6 bg-card">
            <CardContent className="p-0 space-y-4">
               <div className="flex flex-wrap gap-4">
-                <PlayerWarningWrapper url={media.mediaType === 'movie' ? `https://frembed.work/api/film.php?id=${media.id}` : `https://frembed.work/api/serie.php?id=${media.id}&sa=1&epi=1`}>
-                  <Button size="lg" className="w-full sm:w-auto h-14 shadow-md hover:scale-[1.02] transition-transform border-0" style={{ backgroundColor: '#000000' }}>
-                    <div className="flex items-center justify-center gap-2 text-white font-bold">
-                      <Image src="/assets/mascotte/mascotte.svg" alt="Popito" width={24} height={24} />
-                      Lecteur Frembed
-                    </div>
-                  </Button>
-                </PlayerWarningWrapper>
-
                 <Button asChild size="lg" className="w-full sm:w-auto h-14 shadow-md hover:scale-[1.02] transition-transform border-0" style={{ backgroundColor: '#1E1E1E' }}>
                   <a
                     href={`https://cinepulse.lol/sheet/${media.mediaType}-${media.id}`}
@@ -770,6 +760,14 @@ export default function MediaDetailsPage() {
                     Cinepulse (Recommandé)
                   </a>
                 </Button>
+
+                <PlayerWarningWrapper url={media.mediaType === 'movie' ? `https://frembed.work/api/film.php?id=${media.id}` : `https://frembed.work/api/serie.php?id=${media.id}&sa=1&epi=1`}>
+                  <Button size="lg" className="w-full sm:w-auto h-14 shadow-md hover:scale-[1.02] transition-transform border-0" style={{ backgroundColor: '#000000' }}>
+                    <div className="flex items-center justify-center gap-2 text-white font-bold">
+                      Lecteur Frembed
+                    </div>
+                  </Button>
+                </PlayerWarningWrapper>
               </div>
               
               <div className="flex flex-wrap gap-3 pt-4 border-t border-border">
