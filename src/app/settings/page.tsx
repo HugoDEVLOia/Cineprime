@@ -11,7 +11,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Share2, FileDown, AlertTriangle, Loader2, SettingsIcon, SunMoon, Heart, Coffee, LogOut, User as UserIcon, Save } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { ThemeSwitcher } from '@/components/theme-switcher';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -270,20 +269,6 @@ export default function SettingsPage() {
                     </a>
                 </Button>
               </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="shadow-md rounded-xl">
-            <CardHeader>
-              <CardTitle className="text-xl font-semibold flex items-center gap-2 text-foreground">
-                <SunMoon className="h-6 w-6 text-primary"/>Thème de l'application
-              </CardTitle>
-              <CardDescription>
-                Choisissez votre thème préféré pour l'interface.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ThemeSwitcher />
             </CardContent>
           </Card>
         </TabsContent>
