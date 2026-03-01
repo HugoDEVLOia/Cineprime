@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect, useState, use } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, notFound, useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -18,13 +18,12 @@ import {
   type CountryProviderDetails,
   type ProviderDetail,
 } from '@/services/tmdb';
-import { getRTScores } from '@/services/rotten-tomatoes'; 
 import { useMediaLists } from '@/hooks/use-media-lists';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Users, User, Tv, CalendarDays, Clock, Eye, CheckCircle, FilmIcon, ServerCrash, Info, ChevronRight, Loader2, PlaySquare, Radio, ExternalLink, Shield, Link2, GitCompare, Search, SearchX, DollarSign, Play } from 'lucide-react';
+import { Users, User, Tv, CalendarDays, Clock, Eye, CheckCircle, FilmIcon, ServerCrash, Info, ChevronRight, Loader2, PlaySquare, Radio, ExternalLink, Shield, Link2, GitCompare, Search, SearchX, DollarSign, Play, Star } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import MediaCard from '@/components/media-card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -34,7 +33,6 @@ import { Command, CommandInput } from "@/components/ui/command"
 import { useDebounce } from '@/hooks/use-debounce';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { motion, PanInfo } from 'framer-motion';
-import { TomatoIcon, PopcornIcon } from '@/components/rating-icons';
 
 interface ProviderCategoryProps {
   title: string;
@@ -306,7 +304,6 @@ export default function MediaDetailsPage() {
   const cameFromDiscover = searchParams.get('from') === 'discover';
 
   const [media, setMedia] = useState<Media | null>(null);
-  const [realRTScores, setRealRTScores] = useState<{ tomatometer: number, audienceScore: number } | null>(null);
   const [actors, setActors] = useState<Actor[]>([]);
   const [director, setDirector] = useState<Director | null>(null);
   const [seasons, setSeasons] = useState<Season[]>([]);
@@ -355,13 +352,6 @@ export default function MediaDetailsPage() {
         if (mediaType === 'tv' && mediaDetails.id) {
           const seriesSeasons = await getSeriesSeasons(mediaDetails.id.toString());
           setSeasons(seriesSeasons);
-        }
-
-        // Récupération des vrais scores Rotten Tomatoes via SERVER ACTION (pour éviter CORS)
-        if (mediaDetails.title && mediaType === 'movie') {
-          getRTScores(mediaDetails.title).then(scores => {
-            if (scores) setRealRTScores(scores);
-          }).catch(err => console.warn("RT scores fetch failed (handled):", err));
         }
       } catch (err) {
         console.error('Erreur lors de la récupération des détails du média:', err);
@@ -444,10 +434,6 @@ export default function MediaDetailsPage() {
   const isWatched = isInList(media.id, 'watched');
   const trailerToDisplay = findBestTrailer(media.videos);
 
-  // Priorité aux vrais scores si disponibles
-  const finalTomatometer = realRTScores ? realRTScores.tomatometer : media.tomatometer;
-  const finalAudienceScore = realRTScores ? realRTScores.audienceScore : media.audienceScore;
-
 
   const handleToggleList = async (listType: 'toWatch' | 'watched') => {
     if (!media) return;
@@ -519,20 +505,15 @@ export default function MediaDetailsPage() {
             </div>
             <h1 className="text-4xl md:text-5xl font-extrabold text-foreground tracking-tight">{media.title}</h1>
             
-            {/* Rotten Tomatoes Section */}
+            {/* TMDB Score Section */}
             <div className="flex flex-wrap items-center gap-8 py-2">
               <div className="flex items-center gap-3">
-                <TomatoIcon score={finalTomatometer} className="w-10 h-10" />
-                <div>
-                  <div className="text-2xl font-black leading-none">{finalTomatometer}%</div>
-                  <div className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Tomatometer</div>
+                <div className="bg-yellow-400 p-2.5 rounded-xl shadow-lg shadow-yellow-400/20">
+                    <Star className="w-8 h-8 text-black fill-black" />
                 </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <PopcornIcon score={finalAudienceScore} className="w-10 h-10" />
                 <div>
-                  <div className="text-2xl font-black leading-none">{finalAudienceScore}%</div>
-                  <div className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Public</div>
+                  <div className="text-3xl font-black leading-none">{media.averageRating}<span className="text-lg text-muted-foreground font-medium ml-1">/10</span></div>
+                  <div className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Note TMDB Officielle</div>
                 </div>
               </div>
             </div>
@@ -815,8 +796,8 @@ export default function MediaDetailsPage() {
                         <div className="flex justify-between items-start gap-2">
                           <h4 className="font-semibold text-foreground flex-grow">{episode.episodeNumber}. {episode.title}</h4>
                           <div className="flex items-center text-xs text-muted-foreground whitespace-nowrap">
-                            <TomatoIcon score={episode.rating * 10} className="w-3.5 h-3.5 mr-1" />
-                            <span className="font-bold text-foreground">{Math.round(episode.rating * 10)}%</span>
+                            <Star className="w-3.5 h-3.5 mr-1 text-yellow-400 fill-yellow-400" />
+                            <span className="font-bold text-foreground">{episode.rating}</span>
                           </div>
                         </div>
                         {episode.airDate && <p className="text-xs text-muted-foreground mt-0.5">Diffusé le : {new Date(episode.airDate).toLocaleDateString('fr-FR')}</p>}

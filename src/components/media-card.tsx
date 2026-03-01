@@ -5,10 +5,9 @@ import type { Media } from '@/services/tmdb';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Film, TvIcon, Briefcase, CalendarDays } from 'lucide-react';
+import { Film, TvIcon, Briefcase, CalendarDays, Star } from 'lucide-react';
 import { Badge } from './ui/badge';
 import { Skeleton } from './ui/skeleton';
-import { TomatoIcon } from './rating-icons';
 
 interface MediaCardProps {
   media: Media;
@@ -76,8 +75,8 @@ export default function MediaCard({ media, imageLoading = 'lazy' }: MediaCardPro
           {media.mediaType !== 'person' ? (
             <div className="flex items-center text-xs text-muted-foreground mb-2 space-x-2">
               <div className="flex items-center gap-1.5">
-                <TomatoIcon score={media.tomatometer} className="w-4 h-4" />
-                <span className="font-bold text-foreground">{media.tomatometer}%</span>
+                <Star className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />
+                <span className="font-bold text-foreground">{media.averageRating}</span>
               </div>
               {media.releaseDate && (
                 <>

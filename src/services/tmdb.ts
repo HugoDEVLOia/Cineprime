@@ -47,8 +47,6 @@ export interface Media {
   posterUrl: string;
   backdropUrl?: string;
   averageRating: number;
-  tomatometer: number; // Rotten Tomatoes Critic Score
-  audienceScore: number; // Rotten Tomatoes Audience Score
   mediaType: MediaType;
   releaseDate?: string;
   runtime?: number; // in minutes for movies
@@ -79,7 +77,6 @@ export interface PersonCreditMedia {
   job?: string; // For crew credits
   releaseDate?: string;
   averageRating: number;
-  tomatometer: number;
 }
 
 
@@ -168,16 +165,6 @@ const mapApiActorToActor = (actor: any): Actor => ({
   character: actor.character,
 });
 
-const calculateRTScore = (id: string, tmdbRating: number, type: 'critic' | 'audience'): number => {
-  if (!tmdbRating) return 0;
-  // Deterministic simulation based on ID to make it look "not like TMDB * 10"
-  const hash = parseInt(id.slice(-3)) || 0;
-  const offset = (hash % 15) - 7; // -7 to +7
-  const base = Math.round(tmdbRating * 10);
-  const final = type === 'critic' ? base + offset : base - offset;
-  return Math.min(100, Math.max(0, final));
-};
-
 const mapApiMediaToMedia = (item: any, mediaType: MediaType): Media => {
   let contentRating: string | undefined = undefined;
 
@@ -188,8 +175,6 @@ const mapApiMediaToMedia = (item: any, mediaType: MediaType): Media => {
       description: item.known_for_department || 'Artiste',
       posterUrl: getSafeProfileImageUrl(item.profile_path),
       averageRating: 0,
-      tomatometer: 0,
-      audienceScore: 0,
       mediaType: 'person',
       knownForDepartment: item.known_for_department,
       popularity: item.popularity
@@ -228,8 +213,6 @@ const mapApiMediaToMedia = (item: any, mediaType: MediaType): Media => {
     posterUrl: getSafeImageUrl(item.poster_path),
     backdropUrl: getSafeImageUrl(item.backdrop_path, 'original'),
     averageRating: tmdbRating,
-    tomatometer: calculateRTScore(item.id.toString(), tmdbRating, 'critic'),
-    audienceScore: calculateRTScore(item.id.toString(), tmdbRating, 'audience'),
     mediaType,
     releaseDate: item.release_date || item.first_air_date,
     runtime: item.runtime,
@@ -620,7 +603,6 @@ const mapApiCreditToPersonCreditMedia = (credit: any): PersonCreditMedia => {
         job: credit.job,
         releaseDate: credit.release_date || credit.first_air_date,
         averageRating: tmdbRating,
-        tomatometer: calculateRTScore(credit.id.toString(), tmdbRating, 'critic'),
     };
 };
 
