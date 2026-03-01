@@ -214,19 +214,21 @@ export default function SettingsPage() {
               </CardContent>
             </Card>
 
-            <Card className="max-w-2xl mx-auto shadow-lg rounded-xl border-destructive/50">
-                <CardHeader>
-                    <CardTitle className="text-xl font-semibold flex items-center gap-2 text-destructive">
+            <Card className="max-w-2xl mx-auto shadow-lg rounded-xl border-destructive/30 bg-destructive/[0.02]">
+                <CardHeader className="text-center">
+                    <CardTitle className="text-xl font-semibold flex items-center justify-center gap-2 text-destructive">
                       <LogOut className="h-6 w-6"/> Zone de Danger
                     </CardTitle>
                     <CardDescription>
                       Cette action est irréversible. Elle supprimera toutes vos données locales (profil et listes) de ce navigateur.
                     </CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="flex justify-center pb-8">
                     <AlertDialog>
                         <AlertDialogTrigger asChild>
-                            <Button variant="destructive">Se déconnecter</Button>
+                            <Button variant="destructive" size="lg" className="px-10">
+                              Se déconnecter
+                            </Button>
                         </AlertDialogTrigger>
                         <AlertDialogContent>
                             <AlertDialogHeader>
