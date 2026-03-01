@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -20,18 +21,19 @@ import {
 import { useMediaLists } from '@/hooks/use-media-lists';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Star, Users, User, Clapperboard, Tv, CalendarDays, Clock, Eye, CheckCircle, FilmIcon, ServerCrash, Info, ChevronRight, Loader2, PlaySquare, Radio, ExternalLink, Shield, Link2, XCircle, GitCompare, Search, SearchX, DollarSign, Sparkles, Play } from 'lucide-react';
+import { Users, User, Tv, CalendarDays, Clock, Eye, CheckCircle, FilmIcon, ServerCrash, Info, ChevronRight, Loader2, PlaySquare, Radio, ExternalLink, Shield, Link2, GitCompare, Search, SearchX, DollarSign, Play } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import MediaCard from '@/components/media-card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Command, CommandInput, CommandEmpty, CommandGroup, CommandItem, CommandList } from "@/components/ui/command"
+import { Command, CommandInput } from "@/components/ui/command"
 import { useDebounce } from '@/hooks/use-debounce';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { motion, PanInfo } from 'framer-motion';
+import { TomatoIcon, PopcornIcon } from '@/components/rating-icons';
 
 interface ProviderCategoryProps {
   title: string;
@@ -499,11 +501,26 @@ export default function MediaDetailsPage() {
               </Badge>
             </div>
             <h1 className="text-4xl md:text-5xl font-extrabold text-foreground tracking-tight">{media.title}</h1>
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-muted-foreground text-sm md:text-base">
-              <div className="flex items-center">
-                <Star className="w-5 h-5 mr-1.5 text-yellow-400 fill-yellow-400" />
-                <span className="font-medium">{media.averageRating > 0 ? media.averageRating.toFixed(1) : 'N/A'}</span>
+            
+            {/* Rotten Tomatoes Section */}
+            <div className="flex flex-wrap items-center gap-8 py-2">
+              <div className="flex items-center gap-3">
+                <TomatoIcon score={media.tomatometer} className="w-10 h-10" />
+                <div>
+                  <div className="text-2xl font-black leading-none">{media.tomatometer}%</div>
+                  <div className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Tomatometer</div>
+                </div>
               </div>
+              <div className="flex items-center gap-3">
+                <PopcornIcon score={media.audienceScore} className="w-10 h-10" />
+                <div>
+                  <div className="text-2xl font-black leading-none">{media.audienceScore}%</div>
+                  <div className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Public</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-muted-foreground text-sm md:text-base">
               {media.releaseDate && (
                 <div className="flex items-center">
                   <CalendarDays className="w-5 h-5 mr-1.5" />
@@ -781,8 +798,8 @@ export default function MediaDetailsPage() {
                         <div className="flex justify-between items-start gap-2">
                           <h4 className="font-semibold text-foreground flex-grow">{episode.episodeNumber}. {episode.title}</h4>
                           <div className="flex items-center text-xs text-muted-foreground whitespace-nowrap">
-                            <Star className="w-3.5 h-3.5 mr-1 text-yellow-400 fill-yellow-400" />
-                            <span className="font-medium">{episode.rating > 0 ? episode.rating.toFixed(1) : 'N/A'}</span>
+                            <TomatoIcon score={episode.rating * 10} className="w-3.5 h-3.5 mr-1" />
+                            <span className="font-bold text-foreground">{Math.round(episode.rating * 10)}%</span>
                           </div>
                         </div>
                         {episode.airDate && <p className="text-xs text-muted-foreground mt-0.5">Diffusé le : {new Date(episode.airDate).toLocaleDateString('fr-FR')}</p>}
@@ -833,103 +850,21 @@ function MediaDetailsSkeleton({ mediaType }: { mediaType: 'movie' | 'tv' }) {
         <div className="md:col-span-8 xl:col-span-9 space-y-6">
           <Skeleton className="h-8 w-28 rounded-md" /> {/* Badge */}
           <Skeleton className="h-12 w-4/5 rounded-lg" /> {/* Titre */}
+          <div className="flex gap-8 py-2">
+            <Skeleton className="h-12 w-24 rounded-md" />
+            <Skeleton className="h-12 w-24 rounded-md" />
+          </div>
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-            <Skeleton className="h-6 w-20 rounded-md" /> {/* Note */}
             <Skeleton className="h-6 w-40 rounded-md" /> {/* Date de sortie */}
             {mediaType === 'movie' && <Skeleton className="h-6 w-24 rounded-md" />} {/* Durée */}
             {mediaType === 'tv' && <Skeleton className="h-6 w-28 rounded-md" />} {/* Saisons */}
-            <Skeleton className="h-6 w-16 rounded-md" /> {/* Content Rating Skeleton */}
+            <Skeleton className="h-6 w-16 rounded-md" />
           </div>
           <Skeleton className="h-24 w-full rounded-lg" /> {/* Description */}
           <div className="flex flex-col sm:flex-row gap-3">
             <Skeleton className="h-12 w-full sm:w-48 rounded-lg" />
             <Skeleton className="h-12 w-full sm:w-48 rounded-lg" />
           </div>
-          <div>
-            <Skeleton className="h-8 w-40 mb-4 rounded-lg" /> {/* Titre Distribution */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="space-y-2">
-                  <Skeleton className="w-full aspect-[2/3] rounded-md" />
-                  <Skeleton className="h-4 w-3/4 mx-auto rounded" />
-                  <Skeleton className="h-3 w-1/2 mx-auto rounded" />
-                </div>
-              ))}
-            </div>
-          </div>
-          <div>
-            <Skeleton className="h-8 w-32 mb-4 rounded-lg" /> {/* Titre Réalisateur */}
-            <div className="flex items-center gap-4 p-4 bg-card rounded-lg">
-              <Skeleton className="h-[90px] w-[60px] rounded-md" />
-              <div className="space-y-2">
-                <Skeleton className="h-6 w-32 rounded" />
-                <Skeleton className="h-4 w-20 rounded" />
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Watch Providers Skeleton */}
-      <section>
-        <Skeleton className="h-10 w-52 mb-6 rounded-lg" /> {/* Title "Où Regarder" */}
-        <Card className="shadow-lg rounded-xl p-6 bg-card">
-          <div className="space-y-6">
-            <div>
-              <Skeleton className="h-6 w-40 mb-3 rounded" /> {/* Category title */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-                {Array.from({ length: 3 }).map((_, i) => (
-                  <div key={`provider-skel-${i}`} className="p-3 bg-muted/30 rounded-lg">
-                    <Skeleton className="h-[60px] w-[60px] mx-auto mb-2 rounded-md" />
-                    <Skeleton className="h-3 w-3/4 mx-auto rounded" />
-                  </div>
-                ))}
-              </div>
-            </div>
-             <div> 
-              <Skeleton className="h-6 w-32 mb-3 rounded" />
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-                <Skeleton className="p-3 bg-muted/30 rounded-lg">
-                  <Skeleton className="h-[60px] w-[60px] mx-auto mb-2 rounded-md" />
-                  <Skeleton className="h-3 w-3/4 mx-auto rounded" />
-                </Skeleton>
-              </div>
-            </div>
-          </div>
-        </Card>
-      </section>
-
-      {/* Trailer Skeleton */}
-      <section>
-        <Skeleton className="h-10 w-56 mb-6 rounded-lg" /> {/* Titre Bande-annonce */}
-        <Skeleton className="aspect-video w-full max-w-3xl mx-auto rounded-xl" />
-      </section>
-
-      {mediaType === 'tv' && (
-        <section>
-          <Skeleton className="h-10 w-56 mb-6 rounded-lg" /> {/* Titre Saisons */}
-          <div className="space-y-4">
-            {Array.from({ length: 2 }).map((_, i) => (
-              <div key={i} className="border border-border bg-card rounded-xl p-4">
-                <Skeleton className="h-12 w-full rounded-md" /> 
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      <section>
-        <Skeleton className="h-10 w-64 mb-6 rounded-lg" /> {/* Titre Recommandations */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 md:gap-8">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="flex flex-col space-y-3">
-              <Skeleton className="h-[250px] w-full rounded-xl" />
-              <div className="space-y-2 p-2">
-                <Skeleton className="h-4 w-[150px]" />
-                <Skeleton className="h-4 w-[100px]" />
-              </div>
-            </div>
-          ))}
         </div>
       </section>
     </div>

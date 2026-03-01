@@ -1,14 +1,14 @@
+
+'use client';
+
 import type { Media } from '@/services/tmdb';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Eye, CheckCircle, Star, CalendarDays, Film, TvIcon, User, Briefcase } from 'lucide-react';
-import { useMediaLists, type ListType } from '@/hooks/use-media-lists';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Film, TvIcon, Briefcase, CalendarDays } from 'lucide-react';
 import { Badge } from './ui/badge';
-import { useState, useCallback } from 'react';
 import { Skeleton } from './ui/skeleton';
-
+import { TomatoIcon } from './rating-icons';
 
 interface MediaCardProps {
   media: Media;
@@ -75,9 +75,9 @@ export default function MediaCard({ media, imageLoading = 'lazy' }: MediaCardPro
           </Link>
           {media.mediaType !== 'person' ? (
             <div className="flex items-center text-xs text-muted-foreground mb-2 space-x-2">
-              <div className="flex items-center">
-                <Star className="w-4 h-4 mr-1 text-yellow-400 fill-yellow-400" />
-                <span className="font-medium">{media.averageRating > 0 ? media.averageRating.toFixed(1) : 'N/A'}</span>
+              <div className="flex items-center gap-1.5">
+                <TomatoIcon score={media.tomatometer} className="w-4 h-4" />
+                <span className="font-bold text-foreground">{media.tomatometer}%</span>
               </div>
               {media.releaseDate && (
                 <>

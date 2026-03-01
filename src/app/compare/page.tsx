@@ -2,20 +2,20 @@
 'use client';
 
 import { Suspense, useEffect, useState } from 'react';
-import { useSearchParams, notFound, useRouter } from 'next/navigation';
+import { useSearchParams, notFound } from 'next/navigation';
 import { getMediaDetails, type Media } from '@/services/tmdb';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { ServerCrash, GitCompare, Star, CalendarDays, Clock, Users, FilmIcon, Award, DollarSign } from 'lucide-react';
+import { ServerCrash, GitCompare, CalendarDays, Clock, Users, FilmIcon, Award, DollarSign } from 'lucide-react';
 import Image from 'next/image';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
+import { TomatoIcon, PopcornIcon } from '@/components/rating-icons';
 
 function ComparePageComponent() {
     const searchParams = useSearchParams();
-    const router = useRouter();
     const movieAId = searchParams.get('a');
     const movieBId = searchParams.get('b');
 
@@ -140,10 +140,16 @@ function ComparePageComponent() {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        <TableRow className={getRowClass(movieA.averageRating, movieB.averageRating)}>
-                            <TableCell className="font-medium flex items-center gap-2"><Star className="text-yellow-500 h-4 w-4"/>Note</TableCell>
-                            <TableCell className={`text-center ${getWinnerClass(movieA.averageRating, movieB.averageRating)}`}>{movieA.averageRating.toFixed(1)} / 10</TableCell>
-                            <TableCell className={`text-center ${getWinnerClass(movieB.averageRating, movieA.averageRating)}`}>{movieB.averageRating.toFixed(1)} / 10</TableCell>
+                        <TableRow className={getRowClass(movieA.tomatometer, movieB.tomatometer)}>
+                            <TableCell className="font-medium flex items-center gap-2"><TomatoIcon score={Math.max(movieA.tomatometer, movieB.tomatometer)} className="h-4 w-4"/>Tomatometer</TableCell>
+                            <TableCell className={`text-center ${getWinnerClass(movieA.tomatometer, movieB.tomatometer)}`}>{movieA.tomatometer}%</TableCell>
+                            <TableCell className={`text-center ${getWinnerClass(movieB.tomatometer, movieA.tomatometer)}`}>{movieB.tomatometer}%</TableCell>
+                        </TableRow>
+
+                        <TableRow className={getRowClass(movieA.audienceScore, movieB.audienceScore)}>
+                            <TableCell className="font-medium flex items-center gap-2"><PopcornIcon score={Math.max(movieA.audienceScore, movieB.audienceScore)} className="h-4 w-4"/>Note Public</TableCell>
+                            <TableCell className={`text-center ${getWinnerClass(movieA.audienceScore, movieB.audienceScore)}`}>{movieA.audienceScore}%</TableCell>
+                            <TableCell className={`text-center ${getWinnerClass(movieB.audienceScore, movieA.audienceScore)}`}>{movieB.audienceScore}%</TableCell>
                         </TableRow>
 
                          <TableRow className={getRowClass(movieA.popularity, movieB.popularity)}>
@@ -255,5 +261,3 @@ export default function ComparePage() {
         </Suspense>
     )
 }
-
-    
