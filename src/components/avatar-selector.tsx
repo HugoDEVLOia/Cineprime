@@ -3,7 +3,7 @@
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
-import { useState } from 'react';
+import { motion } from 'framer-motion';
 import { Label } from './ui/label';
 import { disneyAvatars, netflixAvatars } from '@/lib/avatars';
 
@@ -54,32 +54,44 @@ interface AvatarSelectorProps {
 
 const AvatarGroup = ({ title, avatarPaths, selectedAvatar, onSelect }: { title: string, avatarPaths: string[], selectedAvatar: string, onSelect: (path: string) => void }) => {
     return (
-        <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-foreground capitalize">{title}</h3>
+        <div className="space-y-3">
+            <h3 className="text-sm font-bold text-muted-foreground/80 uppercase tracking-widest pl-1">{title}</h3>
             <ScrollArea className="w-full whitespace-nowrap">
                 <div className="flex space-x-4 pb-4">
                     {avatarPaths.map(src => {
                         const encodedSrc = encodeAvatarPath(src);
                         if (!encodedSrc) return null;
                         
+                        const isSelected = selectedAvatar === src;
+                        
                         return (
-                            <button 
+                            <motion.button 
                                 key={src} 
                                 onClick={() => onSelect(src)} 
+                                whileHover={{ scale: 1.1 }}
+                                whileTap={{ scale: 0.95 }}
                                 className={cn(
-                                    "rounded-full overflow-hidden border-4 flex-shrink-0 transition-all duration-200", 
-                                    selectedAvatar === src ? 'border-primary ring-4 ring-primary/30' : 'border-transparent hover:border-primary/50'
+                                    "rounded-full overflow-hidden border-4 flex-shrink-0 transition-all duration-300 relative", 
+                                    isSelected ? 'border-primary ring-4 ring-primary/20 scale-105' : 'border-transparent opacity-70 hover:opacity-100'
                                 )}
                             >
                                 <Image 
                                     src={encodedSrc}
                                     alt={`Avatar de ${title}`} 
-                                    width={80} 
-                                    height={80} 
-                                    className="hover:scale-110 transition-transform"
-                                    unoptimized // Prevents Next.js from trying to optimize these static assets
+                                    width={70} 
+                                    height={70} 
+                                    className="object-cover"
+                                    unoptimized
                                 />
-                            </button>
+                                {isSelected && (
+                                    <motion.div 
+                                        layoutId="check"
+                                        className="absolute inset-0 bg-primary/20 flex items-center justify-center"
+                                    >
+                                        {/* Optional check icon if desired */}
+                                    </motion.div>
+                                )}
+                            </motion.button>
                         )
                     })}
                 </div>
@@ -95,30 +107,34 @@ export default function AvatarSelector({ currentAvatar, onSelectAvatar }: Avatar
     const groupedDisneyAvatars = groupAvatarsBySeries(disneyAvatars);
 
     return (
-        <div className="space-y-2 flex-grow flex flex-col min-h-0">
-            <Label className="text-base font-semibold">Choisissez un avatar</Label>
-            <ScrollArea className="flex-grow rounded-md border p-4 h-96">
-                <div className="space-y-8">
-                    <h2 className="text-xl font-bold text-primary">Netflix</h2>
-                    {Object.entries(groupedNetflixAvatars).map(([series, avatars]) => (
-                        <AvatarGroup 
-                            key={series}
-                            title={series}
-                            avatarPaths={avatars}
-                            selectedAvatar={currentAvatar}
-                            onSelect={onSelectAvatar}
-                        />
-                    ))}
-                    <h2 className="text-xl font-bold text-primary mt-8">Disney+</h2>
+        <div className="space-y-4 flex flex-col h-full overflow-hidden">
+            <ScrollArea className="flex-grow rounded-3xl border border-border/50 bg-muted/20 p-4 sm:p-6">
+                <div className="space-y-10">
+                    <div className="space-y-6">
+                        <h2 className="text-xl font-black text-foreground border-l-4 border-primary pl-4">Netflix Originals</h2>
+                        {Object.entries(groupedNetflixAvatars).map(([series, avatars]) => (
+                            <AvatarGroup 
+                                key={series}
+                                title={series}
+                                avatarPaths={avatars}
+                                selectedAvatar={currentAvatar}
+                                onSelect={onSelectAvatar}
+                            />
+                        ))}
+                    </div>
+                    
+                    <div className="space-y-6">
+                        <h2 className="text-xl font-black text-foreground border-l-4 border-blue-500 pl-4">Disney+ Stars</h2>
                         {Object.entries(groupedDisneyAvatars).map(([series, avatars]) => (
-                        <AvatarGroup 
-                            key={series}
-                            title={series}
-                            avatarPaths={avatars}
-                            selectedAvatar={currentAvatar}
-                            onSelect={onSelectAvatar}
-                        />
-                    ))}
+                            <AvatarGroup 
+                                key={series}
+                                title={series}
+                                avatarPaths={avatars}
+                                selectedAvatar={currentAvatar}
+                                onSelect={onSelectAvatar}
+                            />
+                        ))}
+                    </div>
                 </div>
             </ScrollArea>
         </div>
