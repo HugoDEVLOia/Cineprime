@@ -1,4 +1,3 @@
-
 'use client';
 
 import type { Media } from '@/services/tmdb';
@@ -9,6 +8,7 @@ import { Film, TvIcon, Briefcase, CalendarDays } from 'lucide-react';
 import { Badge } from './ui/badge';
 import { Skeleton } from './ui/skeleton';
 import ScoreCircle from './score-circle';
+import { cn } from '@/lib/utils';
 
 interface MediaCardProps {
   media: Media;
