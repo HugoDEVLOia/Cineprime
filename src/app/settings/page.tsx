@@ -252,9 +252,6 @@ export default function SettingsPage() {
               <div className="mx-auto w-24 h-24 mb-4">
                  <Image src="/assets/mascotte/mascotte.svg" alt="Popito" width={96} height={96} />
               </div>
-              <div className="mx-auto w-16 h-16 mb-4 bg-white/10 rounded-full p-2 backdrop-blur-sm flex items-center justify-center">
-                <Image src="/assets/icon/favicon.svg" alt="CinéPrime Logo" width={48} height={48} className="brightness-0 invert" />
-              </div>
               <CardTitle className="text-3xl font-bold">CinéPrime</CardTitle>
               <CardDescription className="text-primary-foreground/80">Version 1.2.0 • Créé avec passion</CardDescription>
             </CardHeader>
