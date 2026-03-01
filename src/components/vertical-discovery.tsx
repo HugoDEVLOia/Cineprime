@@ -14,41 +14,43 @@ import { cn } from '@/lib/utils';
 function DirectLinksPanel({ media }: { media: Media }) {
     const isAnime = media.keywords?.some(k => k.id === 210024);
     const animeSamaUrl = `https://anime-sama.si/catalogue/${media.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')}/`;
-    const vistemoUrl = `https://www.vistemo.xyz/watch/${media.mediaType === 'movie' ? 'movie' : 'tv'}/${media.id}`;
+    const cineprimeUrl = media.mediaType === 'movie' 
+        ? `https://frembed.work/api/film.php?id=${media.id}`
+        : `https://frembed.work/api/serie.php?id=${media.id}`;
 
     return (
-        <div className="w-full h-full bg-card p-6 flex flex-col justify-center items-center text-card-foreground">
-            <h3 className="text-xl font-bold mb-6 flex items-center gap-2"><Link2 /> Liens Directs</h3>
+        <div className="w-full h-full bg-card/90 backdrop-blur-md p-6 flex flex-col justify-center items-center text-card-foreground">
+            <h3 className="text-xl font-bold mb-6 flex items-center gap-2"><Link2 className="text-primary" /> Liens Directs</h3>
             <div className="flex flex-col gap-3 w-full max-w-xs text-sm">
-                <Button asChild size="lg" className="w-full" style={{ backgroundColor: '#000000' }}>
-                    <a href={vistemoUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 text-white font-bold">
-                        <PlaySquare className="h-5 w-5 text-primary" />
-                        Vistemo (Recommandé)
+                <Button asChild size="lg" className="w-full h-14 shadow-lg hover:scale-[1.02] transition-transform border-0" style={{ backgroundColor: '#000000' }}>
+                    <a href={cineprimeUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 text-white font-bold">
+                        <Image src="/assets/mascotte/mascotte.svg" alt="Popito" width={24} height={24} />
+                        Lecteur CinéPrime
                     </a>
                 </Button>
 
-                <Button asChild size="lg" className="w-full" style={{ backgroundColor: '#1E1E1E' }}>
-                    <a href={`https://cinepulse.lol/sheet/movie-${media.id}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 text-[#FF4545]">
+                <Button asChild size="lg" className="w-full h-14 shadow-lg hover:scale-[1.02] transition-transform border-0" style={{ backgroundColor: '#1E1E1E' }}>
+                    <a href={`https://cinepulse.lol/sheet/${media.mediaType}-${media.id}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 text-[#FF4545] font-bold">
                         <Image src="https://cinepulse.lol/favicons/favicon.svg" alt="Cinepulse Logo" width={20} height={20}/>
                         Cinepulse
                     </a>
                 </Button>
                 
-                <div className="flex flex-col gap-2 pt-3 border-t border-border">
-                    <Button asChild style={{ backgroundColor: '#E50914', color: '#F5F5F1' }} className="hover:bg-red-800">
+                <div className="flex flex-col gap-2 pt-4 mt-2 border-t border-border">
+                    <Button asChild className="h-11 shadow-sm hover:brightness-110" style={{ backgroundColor: '#E50914', color: '#F5F5F1' }}>
                         <a href={`https://movix.blog/search?q=${encodeURIComponent(media.title)}`} target="_blank" rel="noopener noreferrer" className="flex items-center">
                             Movix
                         </a>
                     </Button>
                     
-                    <Button asChild style={{ backgroundColor: '#212121', color: '#fff' }} className="hover:bg-black/80">
+                    <Button asChild className="h-11 shadow-sm hover:brightness-125" style={{ backgroundColor: '#212121', color: '#fff' }}>
                         <a href="https://purstream.co/" target="_blank" rel="noopener noreferrer" className="flex items-center">
                             PurStream
                         </a>
                     </Button>
 
                     {isAnime && (
-                        <Button asChild variant="secondary">
+                        <Button asChild variant="secondary" className="h-11 shadow-sm">
                         <a href={animeSamaUrl} target="_blank" rel="noopener noreferrer" className="flex items-center">
                             <Image src="https://cdn.statically.io/gh/Anime-Sama/IMG/img/autres/logo_icon.png" alt="Anime-Sama Logo" width={16} height={16} className="mr-2 rounded-sm"/>
                             Anime-Sama
@@ -105,7 +107,7 @@ function DiscoveryItem({ media, isActive }: { media: Media, isActive: boolean })
     const swipeThreshold = 100;
 
     if (offset.x < -swipeThreshold || velocity.x < -300) { // Swipe left for details
-      router.push(`/media/movie/${media.id}?from=discover`);
+      router.push(`/media/${media.mediaType}/${media.id}?from=discover`);
     } else { // Snap back to center
       controls.start({ x: 0 });
     }
@@ -118,8 +120,8 @@ function DiscoveryItem({ media, isActive }: { media: Media, isActive: boolean })
       onDoubleClick={handleDoubleClick}
     >
       <div className="absolute inset-0">
-         <Image src={media.backdropUrl || media.posterUrl} alt={`Fond pour ${media.title}`} fill className="object-cover" />
-         <div className="absolute inset-0 bg-black/60"></div>
+         <Image src={media.backdropUrl || media.posterUrl} alt={`Fond pour ${media.title}`} fill className="object-cover opacity-60" priority={isActive} />
+         <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/90"></div>
       </div>
        <div className="relative h-full flex flex-col items-center justify-center p-4">
             <motion.div 
@@ -135,25 +137,25 @@ function DiscoveryItem({ media, isActive }: { media: Media, isActive: boolean })
                 {showHeart && (
                 <motion.div
                     initial={{ opacity: 0, scale: 0.5 }}
-                    animate={{ opacity: 1, scale: 1.2, transition: { type: 'spring', stiffness: 200, damping: 10 } }}
+                    animate={{ opacity: 1, scale: 1.2, transition: { type: 'spring', stiffness: 250, damping: 12 } }}
                     exit={{ opacity: 0, scale: 0 }}
                     className="absolute inset-0 flex items-center justify-center pointer-events-none z-30"
                 >
-                    <Heart className="h-24 w-24 text-white drop-shadow-lg" fill="currentColor" />
+                    <Heart className="h-32 w-32 text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.5)]" fill="currentColor" />
                 </motion.div>
                 )}
                 </AnimatePresence>
                 
                 <motion.div 
-                className="relative w-full max-w-[calc(90vh*0.66)] h-full max-h-[90vh] preserve-3d"
+                className="relative w-full max-w-[calc(90vh*0.66)] h-full max-h-[85vh] perspective-1000"
                 animate={{ rotateY: isFlipped ? 180 : 0 }}
-                transition={{ duration: 0.5, ease: 'easeInOut' }}
+                transition={{ duration: 0.6, type: 'spring', stiffness: 100, damping: 20 }}
                 >
                 <motion.div 
                     className="absolute w-full h-full backface-hidden cursor-pointer"
                     onClick={() => setIsFlipped(f => !f)}
                 >
-                    <Image src={media.posterUrl} alt={`Affiche de ${media.title}`} fill className="object-contain rounded-2xl shadow-2xl" />
+                    <Image src={media.posterUrl} alt={`Affiche de ${media.title}`} fill className="object-contain rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.8)]" priority={isActive} />
                 </motion.div>
 
                 <motion.div
@@ -166,32 +168,32 @@ function DiscoveryItem({ media, isActive }: { media: Media, isActive: boolean })
                 </motion.div>
             </motion.div>
 
-           <div className="absolute bottom-6 left-6 right-6 flex items-end justify-between text-white z-20 pointer-events-none">
-               <div className="space-y-1">
-                   <h1 className="text-2xl font-bold leading-tight drop-shadow-lg">{media.title}</h1>
-                   <div className="flex items-center gap-4 text-white/90 text-sm">
-                       <div className="flex items-center gap-1.5 bg-black/40 backdrop-blur-md px-2 py-1 rounded-md">
-                        <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
-                        <span className="font-bold">{media.averageRating.toFixed(1)}</span>
+           <div className="absolute bottom-8 left-6 right-6 flex items-end justify-between text-white z-20 pointer-events-none">
+               <div className="space-y-2">
+                   <h1 className="text-3xl md:text-4xl font-black leading-tight drop-shadow-2xl max-w-[70%]">{media.title}</h1>
+                   <div className="flex items-center gap-4 text-white/90">
+                       <div className="flex items-center gap-1.5 bg-black/50 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10 shadow-lg">
+                        <Star className="h-5 w-5 text-yellow-400 fill-yellow-400" />
+                        <span className="font-bold text-lg">{media.averageRating.toFixed(1)}</span>
                        </div>
                        {media.releaseDate && (
-                       <div className="flex items-center gap-1.5">
-                           <CalendarDays className="h-4 w-4" />
-                           <span>{new Date(media.releaseDate).getFullYear()}</span>
+                       <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10">
+                           <CalendarDays className="h-5 w-5" />
+                           <span className="font-medium">{new Date(media.releaseDate).getFullYear()}</span>
                        </div>
                        )}
                    </div>
                </div>
 
-               <div className="flex flex-col items-center gap-4 pointer-events-auto">
+               <div className="flex flex-col items-center gap-5 pointer-events-auto">
                    <button onClick={handleLike} className="flex flex-col items-center gap-1.5 group">
-                       <div className={cn("h-12 w-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center transition-colors group-hover:bg-white/30", isInList(media.id, 'toWatch') && "bg-red-500/80")}>
-                       <Heart className="h-7 w-7 transition-transform group-active:scale-90" fill={isInList(media.id, 'toWatch') ? "currentColor" : "none"} />
+                       <div className={cn("h-14 w-14 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center transition-all border border-white/20 shadow-2xl group-active:scale-90", isInList(media.id, 'toWatch') ? "bg-primary border-primary text-white" : "hover:bg-white/20")}>
+                       <Heart className="h-8 w-8 transition-transform" fill={isInList(media.id, 'toWatch') ? "currentColor" : "none"} />
                        </div>
                    </button>
                    <button onClick={handleWatched} className="flex flex-col items-center gap-1.5 group">
-                       <div className={cn("h-12 w-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center transition-colors group-hover:bg-white/30", isInList(media.id, 'watched') && "bg-green-500/80")}>
-                       <Check className="h-7 w-7 transition-transform group-active:scale-90" />
+                       <div className={cn("h-14 w-14 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center transition-all border border-white/20 shadow-2xl group-active:scale-90", isInList(media.id, 'watched') ? "bg-green-500 border-green-500 text-white" : "hover:bg-white/20")}>
+                       <Check className="h-8 w-8 transition-transform" />
                        </div>
                    </button>
                </div>
@@ -268,10 +270,10 @@ export default function VerticalDiscovery() {
     <div
       ref={rootRef}
       onScroll={handleScroll}
-      className="h-full w-full overflow-y-auto overflow-x-hidden snap-y snap-mandatory"
+      className="h-full w-full overflow-y-auto overflow-x-hidden snap-y snap-mandatory scrollbar-none"
     >
-      <div className="absolute top-4 left-4 z-50">
-        <Button variant="ghost" size="icon" onClick={() => history.back()} className="h-12 w-12 rounded-full bg-black/30 backdrop-blur-sm text-white hover:bg-black/50">
+      <div className="absolute top-6 left-6 z-50">
+        <Button variant="ghost" size="icon" onClick={() => history.back()} className="h-12 w-12 rounded-full bg-black/40 backdrop-blur-lg text-white hover:bg-black/60 border border-white/10 shadow-2xl transition-all hover:scale-110">
           <ArrowLeft className="h-6 w-6" />
         </Button>
       </div>
